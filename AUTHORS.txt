@@ -1,1 +1,6 @@
 TODO(Checkpoint Requirement 1 of 3): Add team member names and emails.
+
+Emilio Tadeo de la Rocha Galan <tadeo@techexchange.in>
+Daniel Marin <dmarin350@techexchange.in>
+Oluwayimika Adeyemi <oluwayimika_adeyemi@techexchange.in>
+Lerone Joyner <leronewjoyner@techexchange.in>
