@@ -3,12 +3,16 @@
 
 <head>
     <head>
-        <title>The Fantastic Page!</title>
+        {% block page_name %}
+        <title>Star Wars Wiki</title>
+        {% endblock %}
+    
     </head>
 </head>
 
 <body>
     <!-- TODO(Project 1): Implement routes. -->
+    
     <div class="topnav">
         <a class="active" href="/main">Home</a>
         <a href="/pages">Pages</a>
@@ -16,9 +20,16 @@
         <a href="/login">Login</a>
         <a href="/signup">Sign Up</a>
       </div>
-    <div>       
-        Welcome to the Fantastic Four page! (WIP)
+      
+      
+    <div>
+    
+
+        {% block content %}
+        The Star Wars Wikipedia
+        {% endblock %}
     </div>
+    
 </body>
 
 </html>

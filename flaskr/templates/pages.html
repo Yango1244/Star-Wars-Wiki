@@ -1,17 +1,33 @@
+{% extends "main.html" %}
 <!DOCTYPE html>
 <html>
+    
 
 <head>
     <head>
-        
-        <title>The Fantastic Page!</title>
+        {% block page_name %}
+        <title>Wiki Pages</title>
+        {% endblock %}
     </head>
 </head>
 
 <body>
+    
     <!-- TODO(Project 1): Implement routes. -->
-    <div>       
-        These are our current pages
+    <div>
+        {% block content %}
+           
+        <h3>Pages Contained in this Wiki</h3>
+
+        
+        {% for key in page_names%}
+        <li>key.name</li>
+        
+        {% endfor %}
+
+        {% endblock %}
+
+            
         
     </div>
 </body>

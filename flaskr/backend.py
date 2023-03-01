@@ -13,8 +13,9 @@ class Backend:
         pass
 
     def get_all_page_names(self):
-        blobs = self.cur_client.list_blobs(self.content_bucket_name)
 
+        blobs = self.cur_client.list_blobs(self.content_bucket_name)
+        
         return blobs
         
     def upload(self):
