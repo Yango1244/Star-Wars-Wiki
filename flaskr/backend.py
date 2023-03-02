@@ -10,12 +10,16 @@ class Backend:
         
         
     def get_wiki_page(self, name):
-        pass
+        blobs = self.cur_client.list_blobs(self.content_bucket_name)
+        
+        for item in blobs:
+            if item.name == name:
+                return item
+        return None
 
     def get_all_page_names(self):
 
         blobs = self.cur_client.list_blobs(self.content_bucket_name)
-        
         return blobs
         
     def upload(self):
