@@ -2,6 +2,9 @@ from flask import render_template
 
 from flaskr.backend import Backend
 
+from fileinput import filename
+from flask import request
+
 
 def make_endpoints(app):
     global_test = Backend()
@@ -34,6 +37,23 @@ def make_endpoints(app):
     @app.route("/about")
     def about():
         return render_template("about.html")
+
+    @app.route("/upload")
+    def upload():
+        return render_template("upload.html")
+
+    @app.route('/success', methods = ['POST'])
+    def upload_success():
+        back = Backend()
+        if request.method == 'POST':  
+            f = request.files['file']
+            f.save(f.filename)
+            result = back.upload(f.filename)
+
+            if result == "Success":
+                return render_template("upload_success.html")
+            
+            
     
 
         

@@ -17,9 +17,9 @@ def client(app):
 
 # TODO(Checkpoint (groups of 4 only) Requirement 4): Change test to
 # match the changes made in the other Checkpoint Requirements.
-# def test_home_page(client):
-#     resp = client.get("/")
-#     assert resp.status_code == 200
-#     assert b"Hello, World!\n" in resp.data
+def test_home_page(client):
+    resp = client.get("/")
+    assert resp.status_code == 200
+    assert b"Star Wars Wiki" in resp.data
 
 # TODO(Project 1): Write tests for other routes.
