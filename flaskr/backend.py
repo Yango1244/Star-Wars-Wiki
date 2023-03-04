@@ -1,6 +1,8 @@
 # TODO(Project 1): Implement Backend according to the requirements.
 from google.cloud import storage
 from hashlib import blake2s
+import base64
+import io
 
 class Backend:
 
@@ -23,7 +25,8 @@ class Backend:
     def get_all_page_names(self):
 
         blobs = self.cur_client.list_blobs(self.content_bucket_name)
-        return blobs
+        files = [blob.name for blob in blobs]
+        return files
         
     def upload(self):
         pass

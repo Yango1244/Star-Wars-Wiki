@@ -4,6 +4,7 @@ from flaskr.backend import Backend
 
 
 def make_endpoints(app):
+    global_test = Backend()
 
     #./run-flask.sh
 
@@ -18,10 +19,18 @@ def make_endpoints(app):
     
     @app.route("/pages")
     def pages():
-        test = Backend()
-        page_names = test.get_all_page_names()
+        
+        page_names = global_test.get_all_page_names()
 
         return render_template("pages.html",page_names = page_names)
+
+    @app.route('/pages/<filename>')
+    def pages_redirect(filename):
+        file = global_test.get_wiki_page(filename)
+        display = file.download_as_string().decode('utf-8')
+        return render_template('display.html',display = display)
+        
+
     @app.route("/about")
     def about():
         return render_template("about.html")

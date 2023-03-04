@@ -1,0 +1,15 @@
+{% extends "main.html" %}
+<!DOCTYPE html>
+<html>
+  <head>
+    {% block page_name %}
+    <title>Uploaded Page</title>
+    {% endblock %}
+  </head>
+  <body>
+    {% block content %}
+    <h1>Uploaded Page</h1>
+    <p>{{ display }}</p>
+    {% endblock %}
+  </body>
+</html>

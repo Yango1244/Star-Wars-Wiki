@@ -20,10 +20,10 @@
         <h3>Pages Contained in this Wiki</h3>
 
         
-        {% for key in page_names%}
-        <li>key.name</li>
-        <li><a href="key">Capy</a></li>
+
         
+        {% for key in page_names%}
+        <li><a href="/pages/{{key}}">{{key}}</a></li>
         {% endfor %}
 
         {% endblock %}
