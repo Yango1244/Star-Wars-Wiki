@@ -39,13 +39,13 @@ class Backend:
         else:
             user_blob = self.user_bucket.blob(username)
             hashed_password = blake2s((password + username + "fantastic").encode('ASCII'))
-            user_blob.upload_from_string(str(hashed_password))
+            user_blob.upload_from_string(hashed_password.hexdigest())
 
     def sign_in(self, username, password):
         user_blob = self.user_bucket.get_blob(username)
 
         if (user_blob):
-            hashed_password = str(blake2s((password + username + "fantastic").encode('ASCII')).hexdigest())
+            hashed_password = blake2s((password + username + "fantastic").encode('ASCII')).hexdigest()
             with user_blob.open() as f:
                 correct_hash = f.read()
                 return correct_hash == hashed_password
