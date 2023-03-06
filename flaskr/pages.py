@@ -82,6 +82,10 @@ def make_endpoints(app, login_manager):
             valid = global_test.sign_up(form_username, form_password)
 
             if valid:
+                users.add_user_from_id(form_username)
+                user = load_user(form_username)
+                login_user(user)
+                user.authenticate()
                 return render_template("signup_success.html")
             
             return render_template("signup.html", failure = True)
