@@ -33,7 +33,18 @@ def make_endpoints(app):
 
     @app.route("/about")
     def about():
-        return render_template("about.html")
+        authors = ["Oluwayimika Adeyemi", "Lerone Joyner"]
+        urls = [x for x in authors]
+        iters = len(authors)
+        back = Backend()
+        
+        for i in range(0, iters):
+            name = authors[i].replace(" ","")
+            name += ".jpg"
+            urls[i] = (back.get_image(name))
+
+        
+        return render_template("about.html", authors = authors, urls = urls, iters = iters)
 
     @app.route("/upload")
     def upload():
