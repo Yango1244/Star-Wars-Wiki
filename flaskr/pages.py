@@ -50,16 +50,18 @@ def make_endpoints(app):
     def upload():
         return render_template("upload.html")
 
-    @app.route('/success', methods = ['POST'])
-    def upload_success():
+    @app.route('/upload/upload_submit', methods = ['POST'])
+    def upload_submit():
         back = Backend()
         if request.method == 'POST':  
             f = request.files['file']
-            f.save(f.filename)
-            result = back.upload(f.filename)
+            result = back.upload(f.filename, f)
 
             if result == "Success":
                 return render_template("upload_success.html")
+
+            elif result == "Failure":
+                return render_template("upload_failure.html")
 
     @app.route("/signup")
     def signup():
