@@ -22,4 +22,8 @@ def test_home_page(client):
     assert resp.status_code == 200
     assert b"Star Wars Wiki" in resp.data
 
+def test_signup(client):
+    resp = client.get("/signup")
+    assert resp.status_code == 200
+    assert b"Sign up" in resp.data
 # TODO(Project 1): Write tests for other routes.
