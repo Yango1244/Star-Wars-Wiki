@@ -39,7 +39,7 @@ def make_endpoints(app, login_manager):
 
     @app.route("/about")
     def about():
-        authors = ["Oluwayimika Adeyemi", "Lerone Joyner"]
+        authors = ["Oluwayimika Adeyemi", "Lerone Joyner", "Emilio Tadeo de la Rocha Galan", "Daniel Marin"]
         urls = [x for x in authors]
         iters = len(authors)
         back = Backend()
