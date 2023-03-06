@@ -20,12 +20,9 @@ def make_endpoints(app, login_manager):
     # Flask uses the "app.route" decorator to call methods when users
     # go to a specific route on the project's website.
     @app.route("/")
-    @app.route("/main")
+    @app.route("/home")
     def home():
-        # TODO(Checkpoint Requirement 2 of 3): Change this to use render_template
-        # to render main.html on the home page.
         return render_template("main.html")
-    
     @app.route("/pages")
     def pages():
         
@@ -42,23 +39,36 @@ def make_endpoints(app, login_manager):
 
     @app.route("/about")
     def about():
-        return render_template("about.html")
+        authors = ["Oluwayimika Adeyemi", "Lerone Joyner"]
+        urls = [x for x in authors]
+        iters = len(authors)
+        back = Backend()
+        
+        for i in range(0, iters):
+            name = authors[i].replace(" ","")
+            name += ".jpg"
+            urls[i] = (back.get_image(name))
+
+        
+        return render_template("about.html", authors = authors, urls = urls, iters = iters)
 
     @app.route("/upload")
     @login_required
     def upload():
         return render_template("upload.html")
 
-    @app.route('/success', methods = ['POST'])
-    def upload_success():
+    @app.route('/upload/upload_submit', methods = ['POST'])
+    def upload_submit():
         back = Backend()
         if request.method == 'POST':  
             f = request.files['file']
-            f.save(f.filename)
-            result = back.upload(f.filename)
+            result = back.upload(f.filename, f)
 
             if result == "Success":
                 return render_template("upload_success.html")
+
+            elif result == "Failure":
+                return render_template("upload_failure.html")
 
     @app.route("/signup")
     def signup():

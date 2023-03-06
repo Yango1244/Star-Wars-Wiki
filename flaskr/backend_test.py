@@ -11,3 +11,7 @@ def test_sign_up(backend):
 
 def test_sign_in(backend):
     assert backend.sign_in("Capy", "CapybaraLove")
+
+def test_get_image(backend):
+    # integration test
+    assert backend.get_image("LeroneJoyner.jpg")

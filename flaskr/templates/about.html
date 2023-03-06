@@ -18,7 +18,15 @@
 <!-- TODO(Project 1): Add info about the wiki. -->
 
 <h3>Your Authors</h3>
-
+<p>{{ authors }}</p>
+<ul>
+    {% for i in range(iters) %}
+        <li>
+            <h1>{{authors[i]}}</h1>
+            <img src = {{urls[i]}}>
+        </li>
+    {% endfor %}
+</ul>
 <!-- TODO(Project 1): Add team members and pictures to about page. -->
 
 {% endblock %}

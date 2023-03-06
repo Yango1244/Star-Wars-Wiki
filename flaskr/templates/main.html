@@ -14,7 +14,7 @@
     <!-- TODO(Project 1): Implement routes. -->
     
     <div class="topnav">
-        <a class="active" href="/main">Home</a>
+        <a class="active" href="/home">Home</a>
         <a href="/pages">Pages</a>
         <a href="/about">About</a>
         {% if current_user.is_authenticated %}
@@ -33,7 +33,7 @@
     
 
         {% block content %}
-        The Star Wars Wikipedia
+        Welcome to The Star Wars Wikipedia
         {% endblock %}
     </div>
     
