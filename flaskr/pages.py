@@ -104,7 +104,7 @@ def make_endpoints(app, login_manager):
                 user.authenticate()
                 return render_template("login_success.html", username = form_username)
             
-            return render_template("signup.html", failure = True)
+            return render_template("login.html", failure = True)
 
     @app.route("/logout")
     @login_required

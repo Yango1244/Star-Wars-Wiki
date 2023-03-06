@@ -13,6 +13,10 @@
 
 <body>
     {% block content %}
+    <h3>Log in</h3>
+    {% if failure %}
+        <p>Incorrect username-password combination</p>
+    {% endif %}
     <form action="/login/validate" method="post">  
         <label for="username">Username:</label><br>
         <input type="text" id="username" name="username" placeholder="Username"> <br>
