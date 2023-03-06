@@ -74,7 +74,13 @@ class Backend:
         else:
             return False
 
-    def get_image(self):
-        pass
+    def get_image(self, name):
+        # get image from gcs bucket
+        # download to static folder
+        # return url to be used in jinja template
+        bucket = self.content_bucket
+        blob = bucket.blob(name)
+        blob.download_to_filename("flaskr/static/" + name)
+        return "static/" + name
 
 
