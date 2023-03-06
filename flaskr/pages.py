@@ -1,13 +1,19 @@
 from flask import render_template
+from flask_login import login_user
+from flask_login import logout_user
+from flask_login import login_required
 
 from flaskr.backend import Backend
+from flaskr.models import User
+from flaskr.models import Users
 
 from fileinput import filename
 from flask import request
 
 
-def make_endpoints(app):
+def make_endpoints(app, login_manager):
     global_test = Backend()
+    users = Users()
 
     #./run-flask.sh
 
@@ -39,6 +45,7 @@ def make_endpoints(app):
         return render_template("about.html")
 
     @app.route("/upload")
+    @login_required
     def upload():
         return render_template("upload.html")
 
@@ -81,10 +88,23 @@ def make_endpoints(app):
             valid = global_test.sign_in(form_username, form_password)
 
             if valid:
+                users.add_user_from_id(form_username)
+                user = load_user(form_username)
+                login_user(user)
+                user.authenticate()
                 return render_template("login_success.html", username = form_username)
             
             return render_template("signup.html", failure = True)
 
+    @app.route("/logout")
+    @login_required
+    def logout():
+        logout_user()
+        return render_template("main.html")
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return users.get_user(user_id)
         
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
