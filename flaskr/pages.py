@@ -59,7 +59,6 @@ def make_endpoints(app):
         
     @app.route("/signup/validate", methods = ['POST'])
     def signup_validate():
-        print (request.form)
         if request.method == 'POST':
             form_username = request.form.get("username")
             form_password = request.form.get("password")
@@ -70,9 +69,21 @@ def make_endpoints(app):
             
             return render_template("signup.html", failure = True)
 
+    @app.route("/login")
+    def login():
+        return render_template("login.html", failure = False)        
             
+    @app.route("/login/validate", methods = ['POST'])
+    def login_validate():
+        if request.method == 'POST':
+            form_username = request.form.get("username")
+            form_password = request.form.get("password")
+            valid = global_test.sign_in(form_username, form_password)
+
+            if valid:
+                return render_template("login_success.html", username = form_username)
             
-    
+            return render_template("signup.html", failure = True)
 
         
 

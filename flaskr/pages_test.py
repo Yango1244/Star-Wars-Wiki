@@ -26,4 +26,10 @@ def test_signup(client):
     resp = client.get("/signup")
     assert resp.status_code == 200
     assert b"Sign up" in resp.data
+
+def test_login(client):
+    resp = client.get("/login")
+    assert resp.status_code == 200
+    assert b"Log in" in resp.data
+    
 # TODO(Project 1): Write tests for other routes.
