@@ -56,11 +56,12 @@ class Backend:
         user_blob = self.user_bucket.get_blob(username)
 
         if (user_blob):
-            return 
-        else:
-            user_blob = self.user_bucket.blob(username)
-            hashed_password = blake2s((password + username + "fantastic").encode('ASCII'))
-            user_blob.upload_from_string(hashed_password.hexdigest())
+            return False
+        
+        user_blob = self.user_bucket.blob(username)
+        hashed_password = blake2s((password + username + "fantastic").encode('ASCII'))
+        user_blob.upload_from_string(hashed_password.hexdigest())
+        return True
 
     def sign_in(self, username, password):
         user_blob = self.user_bucket.get_blob(username)

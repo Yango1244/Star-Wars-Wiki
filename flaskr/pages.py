@@ -52,6 +52,24 @@ def make_endpoints(app):
 
             if result == "Success":
                 return render_template("upload_success.html")
+
+    @app.route("/signup")
+    def signup():
+        return render_template("signup.html", failure = False)
+        
+    @app.route("/signup/validate", methods = ['POST'])
+    def signup_validate():
+        print (request.form)
+        if request.method == 'POST':
+            form_username = request.form.get("username")
+            form_password = request.form.get("password")
+            valid = global_test.sign_up(form_username, form_password)
+
+            if valid:
+                return render_template("signup_success.html")
+            
+            return render_template("signup.html", failure = True)
+
             
             
     

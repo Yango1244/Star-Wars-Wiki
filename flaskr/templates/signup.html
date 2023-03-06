@@ -1,0 +1,24 @@
+{% extends "main.html" %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <head>
+        {% block page_name %}
+        <title>Sign in</title>
+        {% endblock %}
+    
+    </head>
+</head>
+
+<body>
+    {% block content %}
+    <form action="/signup/validate" method="post">  
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" placeholder="Username"> <br>
+        <label for="password">Password:</label><br>
+        <input type="text" id="password" name="password" placeholder="Password"> <br> 
+        <input type = "submit" value="Sign in"> 
+    </form>
+    {% endblock %}
+</body>    
