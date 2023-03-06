@@ -96,25 +96,31 @@ class Backend:
             
 
     def sign_up(self, username, password):
+        #We first check if a blob already exists with that name
         user_blob = self.user_bucket.get_blob(username)
 
         if (user_blob):
+            #If there is then we can't add the new user
             return False
         
         user_blob = self.user_bucket.blob(username)
+        #We create a blob with our hashed password
         hashed_password = blake2s((password + username + "fantastic").encode('ASCII'))
         user_blob.upload_from_string(hashed_password.hexdigest())
         return True
 
     def sign_in(self, username, password):
+        #We first check if a blob already exists with that name
         user_blob = self.user_bucket.get_blob(username)
 
         if (user_blob):
             hashed_password = blake2s((password + username + "fantastic").encode('ASCII')).hexdigest()
             with user_blob.open() as f:
                 correct_hash = f.read()
+                #We compare the hash in the database with the hash of the password attempt
                 return correct_hash == hashed_password
         else:
+            #If the user doesn't exist then we can't log the user in
             return False
 
     def get_image(self, name):
