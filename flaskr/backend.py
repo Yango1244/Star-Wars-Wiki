@@ -124,6 +124,6 @@ class Backend:
         bucket = self.content_bucket
         blob = bucket.blob(name)
         blob.download_to_filename("flaskr/static/" + name)
-        return "static/" + name
+        return "../static/" + name
 
 
