@@ -22,8 +22,9 @@
         
 
         
-        {% for key in page_names%}
-        <li><a href="/pages/{{key}}">{{key}}</a></li>
+        {% for key  in result%}
+        
+        <li><a href="/pages/{{result[key]}}">{{key}}</a></li>
         {% endfor %}
 
         {% endblock %}

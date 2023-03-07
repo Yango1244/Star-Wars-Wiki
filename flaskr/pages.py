@@ -25,17 +25,19 @@ def make_endpoints(app, login_manager):
         return render_template("main.html")
     @app.route("/pages")
     def pages():
-        
-        page_names = global_test.get_all_page_names()
+       
+        files,page_names= global_test.get_all_page_names()
 
-        return render_template("pages.html",page_names = page_names)
+        result = {page_names[i]: files[i] for i in range(len(page_names))}
+
+        return render_template("pages.html",result = result)
+        
 
     @app.route('/pages/<filename>')
     def pages_redirect(filename):
         file = global_test.get_wiki_page(filename)
         display = file.download_as_string().decode('utf-8')
         return render_template('display.html',display = display)
-        
 
     @app.route("/about")
     def about():

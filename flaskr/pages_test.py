@@ -31,5 +31,11 @@ def test_login(client):
     resp = client.get("/login")
     assert resp.status_code == 200
     assert b"Log in" in resp.data
+
+def test_pages(client):
+    resp = client.get("/pages")
+    assert resp.status_code == 200
+    assert b"Pages Contained in this Wiki" in resp.data
+
     
 # TODO(Project 1): Write tests for other routes.
