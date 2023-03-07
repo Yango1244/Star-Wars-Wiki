@@ -72,7 +72,7 @@ class Backend:
 
             if all_allowed is not False:
                 for file_name in os.listdir(UPLOAD_FOLDER):
-                    blob = self.content_bucket.blob(wiki_name + '/' + file_name)
+                    blob = self.content_bucket.blob(file_name)
                     blob.upload_from_filename(UPLOAD_FOLDER + file_name)
 
                 clean_temp()
@@ -86,7 +86,7 @@ class Backend:
         else:
             if allowed_file(file_name):
                 file_obj.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
-                blob = self.content_bucket.blob(wiki_name + '/' + file_name)
+                blob = self.content_bucket.blob(file_name)
                 blob.upload_from_filename(UPLOAD_FOLDER + file_name)
 
                 clean_temp()
