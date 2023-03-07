@@ -5,6 +5,7 @@ import zipfile
 from hashlib import blake2s
 from google.cloud import storage
 from flask import Flask, request
+from pathlib import Path
 
 UPLOAD_FOLDER = './temp_files/'
 
@@ -32,10 +33,12 @@ class Backend:
     def get_all_page_names(self):
         """Provides a list of all wiki pages in the database"""
         blobs = self.cur_client.list_blobs(self.content_bucket_name)
+        other_blobs = self.cur_client.list_blobs(self.content_bucket_name)
         files = [blob.name for blob in blobs]
-        return files
-
-
+        file_names = [Path(blob.name).stem for blob in other_blobs]
+        return files,file_names
+        
+    
     def upload(self, file_name, file_obj):
         """Uploads a file object to the database"""
         ALLOWED_EXTENSIONS = {'md', 'jpg', 'png', 'gif', 'jpeg'}
@@ -69,7 +72,7 @@ class Backend:
 
             if all_allowed is not False:
                 for file_name in os.listdir(UPLOAD_FOLDER):
-                    blob = self.content_bucket.blob(wiki_name + '/' + file_name)
+                    blob = self.content_bucket.blob(file_name)
                     blob.upload_from_filename(UPLOAD_FOLDER + file_name)
 
                 clean_temp()
@@ -83,7 +86,7 @@ class Backend:
         else:
             if allowed_file(file_name):
                 file_obj.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
-                blob = self.content_bucket.blob(wiki_name + '/' + file_name)
+                blob = self.content_bucket.blob(file_name)
                 blob.upload_from_filename(UPLOAD_FOLDER + file_name)
 
                 clean_temp()
