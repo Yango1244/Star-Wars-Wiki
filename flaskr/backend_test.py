@@ -134,3 +134,65 @@ def test_upload_zip_not_all_accepted(mock_storage, mock_zip, mock_os, backend):
     mock_file_obj.save.return_value = Mock(return_value=None)
 
     assert backend.upload("test.zip", mock_file_obj) == "Failure"
+
+@mock.patch('flaskr.backend.storage')
+def test_get_page_names_no_pages(mock_storage, backend):
+    mock_file_obj = Mock()
+    backend = Backend()
+    files, page_names = backend.get_all_page_names()
+    assert files == [] and page_names == []
+
+@mock.patch('flaskr.backend.storage')
+def test_get_page_names_one_page(mock_storage, backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+    backend = Backend()
+    mock_file_obj.save.return_value = Mock(return_value=None)
+    files, page_names = backend.get_all_page_names()
+    if backend.upload("test.md", mock_file_obj) == "Success":
+        page_names.append('test')
+        print()
+        assert page_names[0] == 'test'
+    else:
+        assert page_names ==[]
+
+@mock.patch('flaskr.backend.storage')
+def test_mult_page_names(mock_storage, backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+    backend = Backend()
+    mock_file_obj.save.return_value = Mock(return_value=None)
+    files, page_names = backend.get_all_page_names()
+    file_names = ['luke.md','anakin.md','yoda.md','vader.md']
+    for i in file_names:
+        if backend.upload("test.md", mock_file_obj) == 'Success':
+            page_names.append(i)
+    
+    assert page_names == ['luke.md','anakin.md','yoda.md','vader.md']
+
+@mock.patch('flaskr.backend.storage')
+def test_get_page_none(mock_storage, backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+    backend = Backend()
+    mock_file_obj.save.return_value = Mock(return_value=None)
+    
+    assert backend.get_wiki_page('luke.md') == None
+
+
+
+    
+    
+
+
+
+    
+
+
+
