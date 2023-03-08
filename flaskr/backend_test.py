@@ -50,7 +50,7 @@ def test_sign_in_user_incorrect(mock_storage, backend):
 
 @mock.patch('flaskr.backend.storage')
 @mock.patch('flaskr.backend.blake2s')
-def test_sign_in_user_correct(mock_blake ,mock_storage, backend):
+def test_sign_in_user_correct(mock_blake, mock_storage, backend):
     mock_digest = Mock()
     mock_blake.return_value = mock_digest
     mock_bucket = Mock()
@@ -75,3 +75,62 @@ def test_sign_in(backend):
 def test_get_image(backend):
     # integration test
     assert backend.get_image("LeroneJoyner.jpg")
+
+def test_upload_empty_file(backend):
+    mock_file_obj = Mock()
+    assert backend.upload("", mock_file_obj) == "Failure"
+       
+@mock.patch('flaskr.backend.storage')
+def test_upload_wrong_format(mock_storage, backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+    backend = Backend()
+
+    mock_file_obj.save.return_value = Mock(return_value=None)
+
+    assert backend.upload("Luke.exe", mock_file_obj) == "Failure"
+
+@mock.patch('flaskr.backend.storage')
+def test_upload_single_file(mock_storage, backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+    backend = Backend()
+
+    mock_file_obj.save.return_value = Mock(return_value=None)
+
+    assert backend.upload("test.md", mock_file_obj) == "Success"
+
+@mock.patch('flaskr.backend.os')
+@mock.patch('flaskr.backend.zipfile')
+@mock.patch('flaskr.backend.storage')
+def test_upload_zip_all_accepted(mock_storage, mock_zip, mock_os, backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+    backend = Backend()
+    mock_os.listdir.return_value = ["test1.md","test2.md"]    
+    
+
+    mock_file_obj.save.return_value = Mock(return_value=None)
+
+    assert backend.upload("test.zip", mock_file_obj) == "Success"
+
+@mock.patch('flaskr.backend.os')
+@mock.patch('flaskr.backend.zipfile')
+@mock.patch('flaskr.backend.storage')
+def test_upload_zip_not_all_accepted(mock_storage, mock_zip, mock_os, backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+    backend = Backend()
+    mock_os.listdir.return_value = ["test1.md","test2.exe"]
+
+    mock_file_obj.save.return_value = Mock(return_value=None)
+
+    assert backend.upload("test.zip", mock_file_obj) == "Failure"

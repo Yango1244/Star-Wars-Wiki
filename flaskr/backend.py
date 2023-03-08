@@ -42,7 +42,6 @@ class Backend:
     def upload(self, file_name, file_obj):
         """Uploads a file object to the database"""
         ALLOWED_EXTENSIONS = {'md', 'jpg', 'png', 'gif', 'jpeg'}
-        wiki_name = request.form['wikiname']
 
         # Function to check file format
         def allowed_file(filename):
