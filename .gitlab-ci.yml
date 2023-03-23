@@ -15,6 +15,6 @@ unittest:
    job: lint
  script:
  - pip install -r requirements.txt
- - pytest
+ - python pytest
  only:
  - pushes
