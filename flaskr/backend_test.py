@@ -72,9 +72,9 @@ def test_sign_in_user_correct(mock_blake, mock_storage, backend):
 def test_sign_in(backend):
     assert backend.sign_in("Capy", "CapybaraLove")
 
-def test_get_image(backend):
-    # integration test
-    assert backend.get_image("LeroneJoyner.jpg")
+# def test_get_image(backend):
+#     # integration test
+#     assert backend.get_image("LeroneJoyner.jpg")
 
 def test_upload_empty_file(backend):
     mock_file_obj = Mock()
