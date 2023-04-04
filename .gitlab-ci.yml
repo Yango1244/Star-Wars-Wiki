@@ -8,7 +8,15 @@ lint:
  only:
   - merge_requests
 
-prod:
+unittest:
+ stage: test
+ script:
+  - pip install -r requirements.txt
+  - pytest .
+ only:
+  - merge_requests
+
+ prod:
  image: google/cloud-sdk:alpine
  stage: deploy
  environment: Production
@@ -18,15 +26,7 @@ prod:
  - echo $SERVICE_ACCOUNT > /tmp/$CI_PIPELINE_ID.json
  - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
  - gcloud --quiet --project $PROJECT_ID app deploy
- - gcloud app browse --fantastic-four-378001
-
-unittest:
- stage: test
- script:
-  - pip install -r requirements.txt
-  - pytest .
- only:
-  - merge_requests
+ 
 
 
  
