@@ -18,12 +18,12 @@ def app():
 
 @pytest.fixture
 def client(app):
-    return app.integration_client()
+    return app.test_client()
 
 
 # TODO(Checkpoint (groups of 4 only) Requirement 4): Change test to
 # match the changes made in the other Checkpoint Requirements.
-def integration_home_page(client):
+def test_home_page(client):
     resp = client.get("/")
     assert resp.status_code == 200
     assert b"Star Wars Wiki" in resp.data
