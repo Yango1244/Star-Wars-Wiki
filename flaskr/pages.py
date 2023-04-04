@@ -23,46 +23,51 @@ def make_endpoints(app, login_manager):
     @app.route("/home")
     def home():
         return render_template("main.html")
+
     @app.route("/pages")
     def pages():
-       
-        files,page_names= global_test.get_all_page_names()
+
+        files, page_names = global_test.get_all_page_names()
 
         result = {page_names[i]: files[i] for i in range(len(page_names))}
 
-        return render_template("pages.html",result = result)
-        
+        return render_template("pages.html", result=result)
 
     @app.route('/pages/<filename>')
     def pages_redirect(filename):
         file = global_test.get_wiki_page(filename)
         display = file.download_as_string().decode('utf-8')
-        return render_template('display.html',display = display)
+        return render_template('display.html', display=display)
 
     @app.route("/about")
     def about():
-        authors = ["Oluwayimika Adeyemi", "Lerone Joyner", "Emilio Tadeo de la Rocha Galan", "Daniel Marin"]
+        authors = [
+            "Oluwayimika Adeyemi", "Lerone Joyner",
+            "Emilio Tadeo de la Rocha Galan", "Daniel Marin"
+        ]
         urls = [x for x in authors]
         iters = len(authors)
         back = Backend()
-        
+
         for i in range(0, iters):
-            name = authors[i].replace(" ","")
+            name = authors[i].replace(" ", "")
             name += ".jpg"
             urls[i] = (back.get_image(name))
 
-        
-        return render_template("about.html", authors = authors, urls = urls, iters = iters)
+        return render_template("about.html",
+                               authors=authors,
+                               urls=urls,
+                               iters=iters)
 
     @app.route("/upload")
     @login_required
     def upload():
         return render_template("upload.html")
 
-    @app.route('/upload/upload_submit', methods = ['POST'])
+    @app.route('/upload/upload_submit', methods=['POST'])
     def upload_submit():
         back = Backend()
-        if request.method == 'POST':  
+        if request.method == 'POST':
             f = request.files['file']
             result = back.upload(f.filename, f)
 
@@ -74,9 +79,9 @@ def make_endpoints(app, login_manager):
 
     @app.route("/signup")
     def signup():
-        return render_template("signup.html", failure = False)
-        
-    @app.route("/signup/validate", methods = ['POST'])
+        return render_template("signup.html", failure=False)
+
+    @app.route("/signup/validate", methods=['POST'])
     def signup_validate():
         if request.method == 'POST':
             form_username = request.form.get("username")
@@ -89,14 +94,14 @@ def make_endpoints(app, login_manager):
                 login_user(user)
                 user.authenticate()
                 return render_template("signup_success.html")
-            
-            return render_template("signup.html", failure = True)
+
+            return render_template("signup.html", failure=True)
 
     @app.route("/login")
     def login():
-        return render_template("login.html", failure = False)        
-            
-    @app.route("/login/validate", methods = ['POST'])
+        return render_template("login.html", failure=False)
+
+    @app.route("/login/validate", methods=['POST'])
     def login_validate():
         if request.method == 'POST':
             form_username = request.form.get("username")
@@ -108,9 +113,10 @@ def make_endpoints(app, login_manager):
                 user = load_user(form_username)
                 login_user(user)
                 user.authenticate()
-                return render_template("login_success.html", username = form_username)
-            
-            return render_template("login.html", failure = True)
+                return render_template("login_success.html",
+                                       username=form_username)
+
+            return render_template("login.html", failure=True)
 
     @app.route("/logout")
     @login_required
@@ -121,6 +127,5 @@ def make_endpoints(app, login_manager):
     @login_manager.user_loader
     def load_user(user_id):
         return users.get_user(user_id)
-        
 
     # TODO(Project 1): Implement additional routes according to the project requirements.

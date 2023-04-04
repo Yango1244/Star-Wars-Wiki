@@ -1,5 +1,6 @@
 from flask_login import UserMixin
 
+
 class Users():
 
     def __init__(self):
@@ -14,8 +15,6 @@ class Users():
         self.user_dict[user_id] = User(user_id)
 
 
-    
-
 class User(UserMixin):
 
     def __init__(self, user_id):
@@ -23,7 +22,7 @@ class User(UserMixin):
         self.is_authenticated_val = False
         self.is_anonymous_val = True
         self.user_id_val = user_id
-    
+
     @property
     def user_id(self):
         return self.user_id_val
@@ -54,4 +53,3 @@ class User(UserMixin):
     def authenticate(self):
         self.is_authenticated_val = True
         self.is_anonymous_val = False
-    

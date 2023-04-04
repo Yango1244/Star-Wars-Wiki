@@ -12,13 +12,16 @@ UPLOAD_FOLDER = './temp_files/'
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+
 class Backend:
     """Provides interface for google cloud storage buckets."""
+
     def __init__(self):
         self.cur_client = storage.Client()
         self.content_bucket_name = 'fantasticwikicontent'
         self.user_bucket_name = 'fantasticuserinfo'
-        self.content_bucket = self.cur_client.get_bucket(self.content_bucket_name)
+        self.content_bucket = self.cur_client.get_bucket(
+            self.content_bucket_name)
         self.user_bucket = self.cur_client.get_bucket(self.user_bucket_name)
 
     def get_wiki_page(self, name):
@@ -36,9 +39,8 @@ class Backend:
         other_blobs = self.cur_client.list_blobs(self.content_bucket_name)
         files = [blob.name for blob in blobs]
         file_names = [Path(blob.name).stem for blob in other_blobs]
-        return files,file_names
-        
-    
+        return files, file_names
+
     def upload(self, file_name, file_obj):
         """Uploads a file object to the database"""
         ALLOWED_EXTENSIONS = {'md', 'jpg', 'png', 'gif', 'jpeg'}
@@ -62,7 +64,7 @@ class Backend:
         elif file_name.rsplit('.', 1)[1].lower() == 'zip':
             all_allowed = True
 
-            with zipfile.ZipFile(file_obj,"r") as zip_ref:
+            with zipfile.ZipFile(file_obj, "r") as zip_ref:
                 zip_ref.extractall(UPLOAD_FOLDER)
 
             for file_name in os.listdir(UPLOAD_FOLDER):
@@ -84,7 +86,8 @@ class Backend:
         # Accepts file with right format and puts in bucket
         else:
             if allowed_file(file_name):
-                file_obj.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+                file_obj.save(
+                    os.path.join(app.config['UPLOAD_FOLDER'], file_name))
                 blob = self.content_bucket.blob(file_name)
                 blob.upload_from_filename(UPLOAD_FOLDER + file_name)
 
@@ -94,7 +97,6 @@ class Backend:
             else:
                 clean_temp()
                 return "Failure"
-
 
     def sign_up(self, username, password):
         """Adds user data if it does not exist along with a hashed password."""
@@ -107,7 +109,8 @@ class Backend:
 
         user_blob = self.user_bucket.blob(username)
         #We create a blob with our hashed password
-        hashed_password = blake2s((password + username + "fantastic").encode('ASCII'))
+        hashed_password = blake2s(
+            (password + username + "fantastic").encode('ASCII'))
         user_blob.upload_from_string(hashed_password.hexdigest())
         return True
 
@@ -117,7 +120,9 @@ class Backend:
         user_blob = self.user_bucket.get_blob(username)
 
         if user_blob:
-            hashed_password=blake2s((password + username + "fantastic").encode('ASCII')).hexdigest()
+            hashed_password = blake2s(
+                (password + username +
+                 "fantastic").encode('ASCII')).hexdigest()
             with user_blob.open() as file:
                 correct_hash = file.read()
                 #We compare the hash in the database with the hash of the password attempt
