@@ -79,8 +79,8 @@ class Backend:
 
             if all_allowed is not False:
                 for file_name in os.listdir(UPLOAD_FOLDER):
-                    blob = self.content_bucket.blob(f)
-                    blob.upload_from_filename(f)
+                    blob = self.content_bucket.blob(file_name)
+                    blob.upload_from_filename(UPLOAD_FOLDER + file_name)
 
                 clean_temp()
                 return "Success"
