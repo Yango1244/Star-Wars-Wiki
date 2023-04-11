@@ -199,3 +199,34 @@ def test_get_page_none(backend):
     mock_file_obj.save.return_value = Mock(return_value=None)
 
     assert backend.get_wiki_page('luke.md') == None
+
+@mock.patch('flaskr.backend.storage')
+def change_profile_no_username(mock_storage, backend):
+    mock_gcs_client = mock_storage.Client.return_value
+    mock_bucket = Mock()
+    
+    mock_bucket.get_blob.return_value = None
+    mock_gcs_client.get_bucket.return_value = mock_bucket
+
+    backend = Backend()
+    assert backend.change_profile("Greg") == "Failure"
+
+@mock.patch('flaskr.backend.storage')
+@mock.patch('flaskr.backend.blake2s')
+def change_profile_wrong_password(mock_storage, mock_blake, backend):
+    mock_digest = Mock()
+    mock_blake.return_value = mock_digest
+    mock_bucket = Mock()
+    mock_blob = Mock()
+    mock_file = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file)
+    mock_open.__exit__ = Mock(return_value=None)
+    mock_gcs_client = mock_storage.Client.return_value
+    mock_gcs_client.get_bucket.return_value = mock_bucket
+    mock_bucket.get_blob.return_value = mock_blob
+    mock_blob.open.return_value = mock_open
+    mock_digest.hexdigest.return_value = "one_pass"
+    mock_file.read.return_value = "another_pass"
+    backend = Backend()
+    assert backend.change_profile("Tim", "pass1", "pass2") == "Failure"

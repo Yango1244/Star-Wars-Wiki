@@ -22,6 +22,15 @@ class Backend:
         self.user_bucket_name = 'fantasticuserinfo'
         self.content_bucket = self.cur_client.bucket(self.content_bucket_name)
         self.user_bucket = self.cur_client.bucket(self.user_bucket_name)
+        self.userphoto_bucket_name = 'fantasticuserphotos'
+        self.userbio_bucket_name = 'fantasticuserbio'
+        self.content_bucket = self.cur_client.get_bucket(
+            self.content_bucket_name)
+        self.user_bucket = self.cur_client.get_bucket(self.user_bucket_name)
+        self.userphoto = self.cur_client.get_bucket(self.userphoto_bucket_name)
+        self.userbio = self.cur_client.get_bucket(self.userbio_bucket_name)
+
+        
 
     def get_wiki_page(self, name):
         """Provides the page blob of a page from the name."""
@@ -72,8 +81,8 @@ class Backend:
 
             if all_allowed is not False:
                 for file_name in os.listdir(UPLOAD_FOLDER):
-                    blob = self.content_bucket.blob(file_name)
-                    blob.upload_from_filename(UPLOAD_FOLDER + file_name)
+                    blob = self.content_bucket.blob(f)
+                    blob.upload_from_filename(f)
 
                 clean_temp()
                 return "Success"
@@ -87,6 +96,7 @@ class Backend:
             if allowed_file(file_name):
                 file_obj.save(
                     os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+
                 blob = self.content_bucket.blob(file_name)
                 blob.upload_from_filename(UPLOAD_FOLDER + file_name)
 
@@ -139,3 +149,79 @@ class Backend:
         blob = bucket.blob(name)
         blob.download_to_filename("flaskr/static/" + name)
         return "../static/" + name
+
+    def change_profile(self, username, old_pass=None, new_pass=None, pic_name=None, pic_obj=None, banner_name=None, banner_obj=None, bio=None):
+        ALLOWED_EXTENSIONS = {'jpg', 'png', 'jpeg'}
+
+        # Function to check file format
+        def allowed_file(filename):
+            return '.' in filename and \
+                filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+        # Function to remove all files from temp
+        def clean_temp():
+            temp_files = glob.glob("./temp_files/*")
+            for file in temp_files:
+                os.remove(file)
+
+        # Function to change password when given right username
+        user_blob = self.user_bucket.get_blob(username)
+
+        if not user_blob:
+            return "Failure"
+        
+        if new_pass:
+            hashed_password = blake2s(
+            (old_pass + username +
+                "fantastic").encode('ASCII')).hexdigest()
+            
+            with user_blob.open() as file:
+                correct_hash = file.read()
+
+            print(correct_hash)
+            print(hashed_password)
+            if correct_hash == hashed_password:
+                hashed_new_password = blake2s(
+                (new_pass + username +
+                "fantastic").encode('ASCII')).hexdigest()
+
+                user_blob.upload_from_string(hashed_new_password)
+            
+            else:
+                return "Failure"
+
+        if pic_name:
+            if allowed_file(pic_name):
+                pic_obj.save(
+                    os.path.join(app.config['UPLOAD_FOLDER'], pic_name))
+
+                blob = self.userphoto.blob(username + "_profile")
+                blob.upload_from_filename(UPLOAD_FOLDER + pic_name)
+                clean_temp()
+            
+            else:
+                return "Failure"
+
+        if banner_name:
+            if allowed_file(banner_name):
+                banner_obj.save(
+                    os.path.join(app.config['UPLOAD_FOLDER'], pic_name))
+                blob = self.userphoto.blob(username + "_banner")
+                blob.upload_from_filename(UPLOAD_FOLDER + pic_name)
+                clean_temp()
+            
+            else:
+                return "Failure"
+
+        if bio:
+            blob = self.userbio.blob(username)
+            blob.upload_from_string(bio)
+        
+        return "Success"
+            
+        
+
+
+            
+
+
