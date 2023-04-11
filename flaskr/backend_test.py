@@ -5,6 +5,8 @@ from unittest.mock import Mock
 from unittest.mock import patch
 import google
 import pytest
+import glob
+from google.cloud import storage
 # TODO(Project 1): Write tests for Backend methods.
 
 
@@ -74,7 +76,7 @@ def sign_in_user_correct(mock_blake, mock_storage, backend):
     assert backend.sign_in("Capy", "CapyRight")
 
 
-def integration_sign_in(backend):
+def test_integration_sign_in(backend):
     assert backend.sign_in("Capy", "CapybaraLove")
 
 
@@ -200,3 +202,9 @@ def get_page_none(mock_storage, backend):
     mock_file_obj.save.return_value = Mock(return_value=None)
 
     assert backend.get_wiki_page('luke.md') == None
+
+def test_character_bucket():
+    backend = Backend()
+    blobs = backend.cur_client.list_blobs(backend.character_bucket_name)
+    characters = [blob.name for blob in blobs]
+    assert "Darth Vader.png" in characters
