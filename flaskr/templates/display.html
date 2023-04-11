@@ -10,11 +10,35 @@
     {% block content %}
     <h1>Uploaded Page</h1>
     <p>{{ display }}</p>
+
     <h2>Comments</h2>
     <form action = "/upload/upload_comment/{{page_name}}/None" method = "post"> 
         <input type="text" id="comment" name="comment" placeholder="Enter your Comment" />
         <input type="submit" value="Upload">  
     </form>
+
+    {% for chain in comments.keys() %}
+        <h3>{{comments[chain][0][1]}} says:</h3>
+        <h3>{{comments[chain][0][0]}}</p></h3>
+        {% if comments[chain][0][1] == current_user.user_id %}
+            <form action="/delete/delete_comment/{{page_name}}/{{chain}}/0/{{current_user.user_id}}" method = "post">
+                <button type="submit">Delete</button>
+            </form>
+        {% endif %}
+        <form action = "/upload/upload_comment/{{page_name}}/{{chain}}" method = "post"> 
+            <input type="text" id="comment" name="comment" placeholder="Enter your Reply" />
+            <input type="submit" value="Upload">  
+        </form>
+        {% for number in range(1, comments[chain] | length) %}
+            <h4>{{comments[chain][number][1]}} replies:</h4>
+            <h4>{{comments[chain][number][0]}}</h4>
+            {% if comments[chain][number][1] == current_user.user_id %}
+                <form action="/delete/delete_comment/{{page_name}}/{{chain}}/{{number}}/{{current_user.user_id}}" method = "post">
+                    <button type="submit">Delete</button>
+                </form>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
     {% endblock %}
   </body>
 </html>
