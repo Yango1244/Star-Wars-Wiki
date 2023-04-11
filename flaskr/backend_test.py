@@ -200,3 +200,37 @@ def get_page_none(mock_storage, backend):
     mock_file_obj.save.return_value = Mock(return_value=None)
 
     assert backend.get_wiki_page('luke.md') == None
+
+def delete_blob(backend):
+    blob = Mock()
+    blob.delete.return_value = Mock()
+    backend.delete_blob(blob)
+    assert blob.delete.assert_called_once_with()
+
+@mock.patch('flaskr.backend.storage')
+def get_comments(mock_storage, backend):
+    mock_blob1 = Mock()
+    mock_blob2 = Mock()
+    mock_blob3 = Mock()
+    mock_blob1.name.return_value = "Han/1.cmt/capy"
+    mock_blob1.download_as_bytes = "Hello!".encode('utf-8')
+    mock_blob2.name.return_value = "Han/2.cmt/jake"
+    mock_blob2.download_as_bytes = "Hello Capy!".encode('utf-8')
+    mock_blob3.name.return_value = "Han/3.cmt/poe"
+    mock_blob3.download_as_bytes = "I love han!".encode('utf-8')
+    mock_client = Mock()
+    mock_storage.client.return_value = mock_client
+    mock_client.list_blobs.return_value = [mock_blob1, mock_blob2, mock_blob3]
+
+    assert (backend.get_comments("Han")) == {1:[("Hello!", "capy")], 2:[("Hello Capy!", "jake")], 3:[("I love han!", "poe")]}
+
+    @mock.patch('flaskr.backend.storage')
+    def get_comments(mock_storage, backend):
+        mock_client = Mock()
+        mock_bucket = Mock()
+        mock_storage.client.return_value = mock_client
+        mock_client.get_bucket.return_value = mock_bucket
+
+        backend.upload_comment("han", "capy", "hello", "1")
+
+        assert mock_bucket.get_blob.assert_called_once_with("han/1.cmt/1.cmt/capy")
