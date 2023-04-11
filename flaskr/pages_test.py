@@ -60,7 +60,9 @@ def test_login_successful(mock_sign_in, client):
     assert b"Welcome back, Test User!" in resp.data
 
 
-def test_pages(client):
+@patch('flaskr.backend.Backend.get_all_page_names')
+def test_pages(mock_get_all_page_names, client):
+    mock_get_all_page_names.return_value = ([], [])
     resp = client.get("/pages")
     assert resp.status_code == 200
     assert b"Pages Contained in this Wiki" in resp.data
