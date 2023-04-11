@@ -196,7 +196,6 @@ def test_get_page_none(backend):
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file_obj)
     mock_open.__exit__ = Mock(return_value=None)
-    backend = Backend()
     mock_file_obj.save.return_value = Mock(return_value=None)
 
     assert backend.get_wiki_page('luke.md') == None
