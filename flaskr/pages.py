@@ -2,6 +2,8 @@ from flask import render_template
 from flask_login import login_user
 from flask_login import logout_user
 from flask_login import login_required
+from flask_login import current_user
+
 
 from flaskr.backend import Backend
 from flaskr.models import User
@@ -37,7 +39,7 @@ def make_endpoints(app, login_manager):
     def pages_redirect(filename):
         file = global_test.get_wiki_page(filename)
         display = file.download_as_string().decode('utf-8')
-        return render_template('display.html', display=display)
+        return render_template('display.html', display=display, page_name=filename)
 
     @app.route("/about")
     def about():
@@ -80,6 +82,23 @@ def make_endpoints(app, login_manager):
     @app.route("/signup")
     def signup():
         return render_template("signup.html", failure=False)
+
+    @app.route("/upload/upload_comment/<page_name>/<parent_comment>", methods=['POST'])
+    @login_required
+    def upload_comment(page_name, parent_comment = None):
+        if request.method == 'POST':
+            form_comment = request.form.get("comment")
+            username = current_user.user_id
+            if parent_comment:
+                global_test.upload_comment(page_name, username, form_comment, parent_comment)
+            else:
+                global_test.upload_comment(page_name, username, form_comment)
+        
+            file = global_test.get_wiki_page(page_name)
+            display = file.download_as_string().decode('utf-8')
+            return render_template('display.html', display=display, page_name=page_name)
+
+    
 
     @app.route("/signup/validate", methods=['POST'])
     def signup_validate():

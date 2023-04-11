@@ -98,6 +98,23 @@ class Backend:
                 clean_temp()
                 return "Failure"
 
+    def upload_comment(self, page_name, username, comment, parent_comment = None):
+        if parent_comment != "None":
+            curr_num = 1
+            while self.content_bucket.get_blob(page_name + "/" + parent_comment + ".cmt" + "/" + str(curr_num) + ".cmt" + "/" + username):
+                curr_num += 1
+
+            comment_string = page_name + "/" + parent_comment + ".cmt" + "/" + str(curr_num) + ".cmt" + "/" + username
+        else:
+            curr_num = 1
+            while self.content_bucket.get_blob(page_name + "/" + str(curr_num) + ".cmt" + "/" + username):
+                curr_num += 1
+
+            comment_string = page_name + "/" + str(curr_num) + ".cmt" + "/" + username
+
+        comment_blob = self.content_bucket.blob(comment_string)
+        comment_blob.upload_from_string(comment)
+
     def sign_up(self, username, password):
         """Adds user data if it does not exist along with a hashed password."""
         #We first check if a blob already exists with that name
