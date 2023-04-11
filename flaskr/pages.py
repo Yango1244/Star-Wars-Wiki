@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, send_file
 from flask_login import login_user
 from flask_login import logout_user
 from flask_login import login_required
@@ -10,8 +10,14 @@ from flaskr.models import Users
 from fileinput import filename
 from flask import request
 
+import json
+from io import BytesIO
+import base64
+
+
 
 def make_endpoints(app, login_manager):
+    
     global_test = Backend()
     users = Users()
 
@@ -22,7 +28,8 @@ def make_endpoints(app, login_manager):
     @app.route("/")
     @app.route("/home")
     def home():
-        return render_template("main.html")
+        character_names = global_test.get_character_names()
+        return render_template("main.html",character_names = character_names)
 
     @app.route("/pages")
     def pages():
@@ -35,6 +42,7 @@ def make_endpoints(app, login_manager):
 
     @app.route('/pages/<filename>')
     def pages_redirect(filename):
+        print('enter')
         file = global_test.get_wiki_page(filename)
         display = file.download_as_string().decode('utf-8')
         return render_template('display.html', display=display)
@@ -127,5 +135,59 @@ def make_endpoints(app, login_manager):
     @login_manager.user_loader
     def load_user(user_id):
         return users.get_user(user_id)
+
+    @app.route("/edit_profile")
+    @login_required
+    def edit_profile():
+        return render_template('edit_profile.html')
+
+    @app.route("/character_profile<name>")
+    def character_profiles(name):
+        name_passed = str()
+        name = name.lower()
+        good_name = list([val for val in name if val.isalpha()])
+        
+        result = "".join(good_name)
+        #List of lists of dictionaries
+        global_people = global_test.request_maker()
+
+        #loop through all pages
+        for page in global_people:
+            #loop through the dictionary in a page
+            for names in page:
+            #Validate each name we go through
+                check_name = names['name'].lower()
+                good_name_two = list([val for val in check_name if val.isalpha()])
+                valid_name_two = "".join(good_name_two)
+                #Check if the name we clicked on matches the one we're on
+                if result in valid_name_two:
+                    name_passed = names['name']
+                    person = names
+                    file = global_test.get_character_image(name_passed)
+                    
+
+                    return render_template('character_profile.html',person = person,name_passed = name_passed)
+
+        return "That character doesn't exist"
+
+    @app.route("/images/<image>")
+    def images(image):
+        """Returns the image from backend.get_image."""
+        return send_file(global_test.get_image(image), mimetype='image/png')
+
+
+
+        
+        
+
+        
+
+
+        
+        
+
+        
+
+    
 
     # TODO(Project 1): Implement additional routes according to the project requirements.

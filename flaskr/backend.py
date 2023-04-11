@@ -6,6 +6,10 @@ from hashlib import blake2s
 from google.cloud import storage
 from flask import Flask, request
 from pathlib import Path
+import requests
+import math
+from io import BytesIO
+
 
 UPLOAD_FOLDER = './temp_files/'
 
@@ -23,6 +27,8 @@ class Backend:
         self.content_bucket = self.cur_client.get_bucket(
             self.content_bucket_name)
         self.user_bucket = self.cur_client.get_bucket(self.user_bucket_name)
+        self.character_bucket = self.cur_client.get_bucket('fantastic_starwars_characters')
+        self.character_list = []
 
     def get_wiki_page(self, name):
         """Provides the page blob of a page from the name."""
@@ -140,3 +146,46 @@ class Backend:
         blob = bucket.blob(name)
         blob.download_to_filename("flaskr/static/" + name)
         return "../static/" + name
+
+
+    def get_character_names(self):
+        character_names = [Path(blob.name).stem for blob in self.character_bucket.list_blobs() if blob.name.endswith(("png", "jpg", "jpeg"))]
+        return character_names
+
+    def request_maker(self):
+        # Calls the API one time so that we can get every character in the Star Wars universe
+        if self.character_list == []:
+            data_list = []
+            for number in range(1, 10):
+                response = requests.get(f"https://swapi.dev/api/people/?page={number}")
+                if response.status_code != 200:
+                    continue
+                else:
+                    #Entire page
+                    data = response.json()
+                    #List of dictionaries for each character - only one page
+                    filtered_data = data["results"]
+                    data_list.append(filtered_data)
+
+            self.character_list = data_list
+            
+            return self.character_list
+        else:
+            #IF the API has already been called, we can just access the information directly, no need to use the API again.
+            return self.character_list
+    def get_character_image(self,name):
+        blob = self.character_bucket.get_blob(name)
+        if blob is None:
+            return BytesIO()
+        with blob.open('rb') as f:
+            output = f.read()
+            return BytesIO(output)
+
+        
+        
+
+        
+       
+   
+
+
