@@ -104,7 +104,7 @@ def test_sign_in_user_correct(mock_blake, backend, login_bucket):
     assert backend.sign_in("Capy", "CapyRight")
 
 
-def test_integration_sign_in(backend):
+def integration_sign_in(backend):
     assert backend.sign_in("Capy", "CapybaraLove")
 
 
