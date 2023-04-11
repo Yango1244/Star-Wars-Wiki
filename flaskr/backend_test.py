@@ -14,7 +14,7 @@ def backend():
 
 
 @mock.patch('flaskr.backend.storage')
-def sign_up_add_user(mock_storage, backend):
+def test_sign_up_add_user(mock_storage, backend):
     mock_gcs_client = mock_storage.Client.return_value
     mock_bucket = Mock()
     # Blob won't exist so we expect to make the blob
@@ -27,7 +27,7 @@ def sign_up_add_user(mock_storage, backend):
 
 
 @mock.patch('flaskr.backend.storage')
-def sign_up_user_exists(mock_storage, backend):
+def test_sign_up_user_exists(mock_storage, backend):
     mock_gcs_client = mock_storage.Client.return_value
     mock_bucket = Mock()
     # Blob will exist so we expect to only call get_blob once
@@ -41,7 +41,7 @@ def sign_up_user_exists(mock_storage, backend):
 
 
 @mock.patch('flaskr.backend.storage')
-def sign_in_user_incorrect(mock_storage, backend):
+def test_sign_in_user_incorrect(mock_storage, backend):
     mock_gcs_client = mock_storage.Client.return_value
     mock_bucket = Mock()
     # Blob won't exist so we expect to return False
@@ -54,7 +54,7 @@ def sign_in_user_incorrect(mock_storage, backend):
 
 @mock.patch('flaskr.backend.storage')
 @mock.patch('flaskr.backend.blake2s')
-def sign_in_user_correct(mock_blake, mock_storage, backend):
+def test_sign_in_user_correct(mock_blake, mock_storage, backend):
     mock_digest = Mock()
     mock_blake.return_value = mock_digest
     mock_bucket = Mock()
@@ -83,13 +83,13 @@ def integration_sign_in(backend):
 #     assert backend.get_image("LeroneJoyner.jpg")
 
 
-def upload_empty_file(backend):
+def test_upload_empty_file(backend):
     mock_file_obj = Mock()
     assert backend.upload("", mock_file_obj) == "Failure"
 
 
 @mock.patch('flaskr.backend.storage')
-def upload_wrong_format(mock_storage, backend):
+def test_upload_wrong_format(mock_storage, backend):
     mock_file_obj = Mock()
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file_obj)
@@ -102,7 +102,7 @@ def upload_wrong_format(mock_storage, backend):
 
 
 @mock.patch('flaskr.backend.storage')
-def upload_single_file(mock_storage, backend):
+def test_upload_single_file(mock_storage, backend):
     mock_file_obj = Mock()
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file_obj)
@@ -117,8 +117,8 @@ def upload_single_file(mock_storage, backend):
 @mock.patch('flaskr.backend.os')
 @mock.patch('flaskr.backend.zipfile')
 @mock.patch('flaskr.backend.storage')
-def upload_zip_all_accepted(mock_storage, mock_zip, mock_os,
-                            backend):
+def test_upload_zip_all_accepted(mock_storage, mock_zip, mock_os,
+                                 backend):
     mock_file_obj = Mock()
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file_obj)
@@ -134,8 +134,8 @@ def upload_zip_all_accepted(mock_storage, mock_zip, mock_os,
 @mock.patch('flaskr.backend.os')
 @mock.patch('flaskr.backend.zipfile')
 @mock.patch('flaskr.backend.storage')
-def upload_zip_not_all_accepted(mock_storage, mock_zip, mock_os,
-                                backend):
+def test_upload_zip_not_all_accepted(mock_storage, mock_zip, mock_os,
+                                     backend):
     mock_file_obj = Mock()
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file_obj)
@@ -149,7 +149,7 @@ def upload_zip_not_all_accepted(mock_storage, mock_zip, mock_os,
 
 
 @mock.patch('flaskr.backend.storage')
-def get_page_names_no_pages(mock_storage, backend):
+def test_get_page_names_no_pages(mock_storage, backend):
     mock_file_obj = Mock()
     backend = Backend()
     files, page_names = backend.get_all_page_names()
@@ -157,7 +157,7 @@ def get_page_names_no_pages(mock_storage, backend):
 
 
 @mock.patch('flaskr.backend.storage')
-def get_page_names_one_page(mock_storage, backend):
+def test_get_page_names_one_page(mock_storage, backend):
     mock_file_obj = Mock()
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file_obj)
@@ -174,7 +174,7 @@ def get_page_names_one_page(mock_storage, backend):
 
 
 @mock.patch('flaskr.backend.storage')
-def mult_page_names(mock_storage, backend):
+def test_mult_page_names(mock_storage, backend):
     mock_file_obj = Mock()
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file_obj)
@@ -191,7 +191,7 @@ def mult_page_names(mock_storage, backend):
 
 
 @mock.patch('flaskr.backend.storage')
-def get_page_none(mock_storage, backend):
+def test_get_page_none(mock_storage, backend):
     mock_file_obj = Mock()
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file_obj)
