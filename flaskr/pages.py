@@ -69,7 +69,7 @@ def make_endpoints(app, login_manager):
         back = Backend()
         if request.method == 'POST':
             f = request.files['file']
-            result = back.upload(f.filename, f)
+            result = back.upload(f.filename, f)            
 
             if result == "Success":
                 return render_template("upload_success.html")
