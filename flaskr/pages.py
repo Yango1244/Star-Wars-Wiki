@@ -6,6 +6,7 @@ from flask_login import login_required
 from flaskr.backend import Backend
 from flaskr.models import User
 from flaskr.models import Users
+from flaskr.set_get_description import get_description
 
 from fileinput import filename
 from flask import request
@@ -30,8 +31,11 @@ def make_endpoints(app, login_manager):
         files, page_names = global_test.get_all_page_names()
 
         result = {page_names[i]: files[i] for i in range(len(page_names))}
+        descriptions = []
+        for page in result:
+            descriptions.append(get_description(page))
 
-        return render_template("pages.html", result=result)
+        return render_template("pages.html", result=result, descriptions=descriptions)
 
     @app.route('/pages/<filename>')
     def pages_redirect(filename):
