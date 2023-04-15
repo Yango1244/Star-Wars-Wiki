@@ -20,8 +20,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 class Backend:
     """Provides interface for google cloud storage buckets."""
 
-    def __init__(self):
-        self.cur_client = storage.Client()
+    def __init__(self, storage_client=storage.Client()):
+        self.cur_client = storage_client
         self.content_bucket_name = 'fantasticwikicontent'
         self.user_bucket_name = 'fantasticuserinfo'
         self.content_bucket = self.cur_client.get_bucket(
@@ -106,15 +106,15 @@ class Backend:
 
     def sign_up(self, username, password):
         """Adds user data if it does not exist along with a hashed password."""
-        #We first check if a blob already exists with that name
+        # We first check if a blob already exists with that name
         user_blob = self.user_bucket.get_blob(username)
 
         if user_blob:
-            #If there is then we can't add the new user
+            # If there is then we can't add the new user
             return False
 
         user_blob = self.user_bucket.blob(username)
-        #We create a blob with our hashed password
+        # We create a blob with our hashed password
         hashed_password = blake2s(
             (password + username + "fantastic").encode('ASCII'))
         user_blob.upload_from_string(hashed_password.hexdigest())
@@ -122,7 +122,7 @@ class Backend:
 
     def sign_in(self, username, password):
         """Checks if a password, when hashed, matches the password in the user bucket."""
-        #We first check if a blob already exists with that name
+        # We first check if a blob already exists with that name
         user_blob = self.user_bucket.get_blob(username)
 
         if user_blob:
@@ -131,10 +131,10 @@ class Backend:
                  "fantastic").encode('ASCII')).hexdigest()
             with user_blob.open() as file:
                 correct_hash = file.read()
-                #We compare the hash in the database with the hash of the password attempt
+                # We compare the hash in the database with the hash of the password attempt
                 return correct_hash == hashed_password
         else:
-            #If the user doesn't exist then we can't log the user in
+            # If the user doesn't exist then we can't log the user in
             return False
 
     def get_image(self, name):

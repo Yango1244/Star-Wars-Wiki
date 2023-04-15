@@ -175,19 +175,6 @@ def make_endpoints(app, login_manager):
         """Returns the image from backend.get_image."""
         return send_file(global_test.get_character_image(image), mimetype='image/png')
 
-
-
-        
-        
-
-        
-
-
-        
-        
-
-        
-
     
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
