@@ -173,7 +173,7 @@ def make_endpoints(app, login_manager):
     @app.route("/images/<image>")
     def images(image):
         """Returns the image from backend.get_image."""
-        return send_file(global_test.get_image(image), mimetype='image/png')
+        return send_file(global_test.get_character_image(image), mimetype='image/png')
 
 
 

@@ -174,8 +174,10 @@ class Backend:
             #IF the API has already been called, we can just access the information directly, no need to use the API again.
             return self.character_list
     def get_character_image(self,name):
-        blob = self.character_bucket.get_blob(name)
+
+        blob = self.character_bucket.get_blob(name+str('.png'))
         if blob is None:
+            print('empty')
             return BytesIO()
         with blob.open('rb') as f:
             output = f.read()

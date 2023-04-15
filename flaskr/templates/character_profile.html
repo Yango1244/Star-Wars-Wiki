@@ -17,7 +17,7 @@
     {% endfor %}
 
     <br>
-    <img src="{{ url_for('images', image='{{name_passed}}.png') }}">
+    <img src="{{ url_for('images', image=name_passed) }}">
     <br>
 
     {% endblock %}
