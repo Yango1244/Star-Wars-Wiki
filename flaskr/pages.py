@@ -6,6 +6,7 @@ from flask_login import login_required
 from flaskr.backend import Backend
 from flaskr.models import User
 from flaskr.models import Users
+from flaskr.set_get_description import set_description
 
 from fileinput import filename
 from flask import request
@@ -72,7 +73,11 @@ def make_endpoints(app, login_manager):
             result = back.upload(f.filename, f)            
 
             if result == "Success":
+                description = request.get('description')
+                if description != "":
+                    set_description(description, f.filename)
                 return render_template("upload_success.html")
+                
 
             elif result == "Failure":
                 return render_template("upload_failure.html")
