@@ -7,4 +7,4 @@ import google
 import pytest
 
 assert contentChecker('mibun') == False
-
+assert contentChecker('hello') == True
