@@ -31,6 +31,8 @@ def get_description(wiki_name):
     d_name = d_name + "_description.txt"
     back = Backend()
     description = back.get_wiki_page(d_name)
+    if description is None:
+        return None
     f = open(description, 'r')
     content = f.read()
     f.close()
