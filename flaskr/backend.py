@@ -49,6 +49,36 @@ class Backend:
         file_names = [Path(blob.name).stem for blob in other_blobs]
         return files, file_names
 
+    def get_users(self):
+        blobs = self.cur_client.list_blobs(self.user_bucket_name)
+        users = [blob.name for blob in blobs]
+        return users
+
+    def get_profile_pic(self, username):
+        blobs = self.cur_client.list_blobs(self.userphoto_bucket_name)
+        for item in blobs:
+            if username + "_profilepic.jpg" == item.name:
+                return "https://storage.cloud.google.com/fantasticuserphotos/" + username + "_profilepic.jpg"
+        
+        return "https://storage.cloud.google.com/fantasticuserphotos/default.png"
+
+    def get_banner_pic(self, username):
+        blobs = self.cur_client.list_blobs(self.userphoto_bucket_name)
+        for item in blobs:
+            if username + "_bannerpic.jpg" == item.name:
+                return "https://storage.cloud.google.com/fantasticuserphotos/" + username + "_bannerpic.jpg"
+        
+        return "https://storage.cloud.google.com/fantasticuserphotos/default_banner.jpg"
+
+    def get_bio(self, username):
+        blobs = self.cur_client.list_blobs(self.userbio_bucket_name)
+        for item in blobs:
+            if item.name == username + ".txt":
+                return item.download_as_string().decode('utf-8')
+        
+        return "No bio"
+
+
     def upload(self, file_name, file_obj):
         """Uploads a file object to the database"""
         ALLOWED_EXTENSIONS = {'md', 'jpg', 'png', 'gif', 'jpeg'}

@@ -1,4 +1,5 @@
 from flask import render_template
+from flask import session
 from flask_login import login_user
 from flask_login import logout_user
 from flask_login import login_required
@@ -58,6 +59,27 @@ def make_endpoints(app, login_manager):
                                authors=authors,
                                urls=urls,
                                iters=iters)
+
+
+    @app.route("/profiles")
+    def profiles():
+        users = global_test.get_users()
+        result = {users[i]: users[i] for i in range(len(users))}
+        return render_template("profiles.html", result=result)
+
+    @app.route("/profiles/<username>")
+    def user_profile(username):
+        photourl = global_test.get_profile_pic(username)
+        bannerurl = global_test.get_banner_pic(username)
+        bio = global_test.get_bio(username)
+        result = {
+            "username":username, 
+            "photourl":photourl, 
+            "banner":bannerurl, 
+            "bio":bio
+        }
+        return render_template("profile.html", result=result)    
+
 
     @app.route("/upload")
     @login_required
@@ -127,5 +149,6 @@ def make_endpoints(app, login_manager):
     @login_manager.user_loader
     def load_user(user_id):
         return users.get_user(user_id)
+
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
