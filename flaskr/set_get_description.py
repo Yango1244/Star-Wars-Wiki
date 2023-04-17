@@ -10,7 +10,7 @@ def set_description(description, filename):
     close file
     upload file to gcs bucket
     '''
-    filename, extension = filename.split('.')
+    filename = filename.split('.')
     new_filename = filename + "_description.txt"
     f = open(new_filename, "w")
     f.write(description)
@@ -27,7 +27,7 @@ def get_description(wiki_name):
     get txt file from bucket
     return string, error message if no description
     '''
-    d_name, extenstion = wiki_name.split('.')
+    d_name = wiki_name.split('.')
     d_name = d_name + "_description.txt"
     back = Backend()
     description = back.get_wiki_page(d_name)
