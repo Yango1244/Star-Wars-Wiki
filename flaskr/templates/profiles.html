@@ -1,0 +1,22 @@
+{% extends "main.html" %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <head>
+        {% block page_name %}
+        <title>Profiles</title>
+        {% endblock %}
+    
+    </head>
+</head>
+
+<body>
+    {% block content %}
+        <h3>User profiles</h3>
+        {% for key  in result%}
+        
+        <li><a href="/profiles/{{result[key]}}">{{key}}</a></li>
+        {% endfor %}
+    {% endblock %}
+</body>
