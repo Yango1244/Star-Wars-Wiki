@@ -36,7 +36,9 @@ def make_endpoints(app, login_manager):
         for page in result:
             descriptions.append(get_description(page))
 
-        return render_template("pages.html", result=result, descriptions=descriptions)
+        return render_template("pages.html",
+                               result=result,
+                               descriptions=descriptions)
 
     @app.route('/pages/<filename>')
     def pages_redirect(filename):
@@ -74,7 +76,7 @@ def make_endpoints(app, login_manager):
         back = Backend()
         if request.method == 'POST':
             f = request.files['file']
-            result = back.upload(f.filename, f)            
+            result = back.upload(f.filename, f)
 
             if result == "Success":
                 description = request.get('description')

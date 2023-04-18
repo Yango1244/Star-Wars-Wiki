@@ -1,5 +1,6 @@
 from flaskr.backend import Backend
 
+
 def set_description(description, filename):
     '''
     Params:
@@ -17,6 +18,7 @@ def set_description(description, filename):
     f.close()
     back = Backend()
     back.upload(new_filename, f)
+
 
 def get_description(wiki_name):
     '''
@@ -37,4 +39,3 @@ def get_description(wiki_name):
     content = f.read()
     f.close()
     return content
-     
