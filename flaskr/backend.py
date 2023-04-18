@@ -37,7 +37,8 @@ class Backend:
         self.userbio_bucket_name = 'fantasticuserbio'
         self.content_bucket = self.cur_client.bucket(self.content_bucket_name)
         self.user_bucket = self.cur_client.bucket(self.user_bucket_name)
-        self.userphoto_bucket = self.cur_client.bucket(self.userphoto_bucket_name)
+        self.userphoto_bucket = self.cur_client.bucket(
+            self.userphoto_bucket_name)
         self.userbio_bucket = self.cur_client.bucket(self.userbio_bucket_name)
 
     def get_wiki_page(self, name):

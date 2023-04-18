@@ -51,10 +51,17 @@ def user_bucket(blob):
 
 
 @pytest.fixture
-def backend(page_bucket, login_bucket, user_bucket):
+def bio_bucket(blob):
+    return make_bucket(blob)
+
+
+@pytest.fixture
+def backend(page_bucket, login_bucket, user_bucket, bio_bucket):
     storage_client = MagicMock()
     storage_client.bucket = Mock()
-    storage_client.bucket.side_effect = [page_bucket, login_bucket, user_bucket]
+    storage_client.bucket.side_effect = [
+        page_bucket, login_bucket, user_bucket, bio_bucket
+    ]
     return Backend(storage_client=storage_client)
 
 
