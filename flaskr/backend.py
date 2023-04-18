@@ -24,8 +24,7 @@ class Backend:
         self.cur_client = storage_client
         self.content_bucket_name = 'fantasticwikicontent'
         self.user_bucket_name = 'fantasticuserinfo'
-        self.content_bucket = self.cur_client.get_bucket(
-            self.content_bucket_name)
+        self.content_bucket = self.cur_client.get_bucket(self.content_bucket_name)
         self.user_bucket = self.cur_client.get_bucket(self.user_bucket_name)
         self.character_bucket = self.cur_client.get_bucket('fantastic_starwars_characters')
         self.character_list = []
