@@ -50,6 +50,16 @@ def backend(page_bucket, login_bucket):
     storage_client = MagicMock()
     storage_client.bucket = Mock()
     storage_client.bucket.side_effect = [page_bucket, login_bucket]
+@pytest.fixture
+def user_bucket(blob):
+    return make_bucket(blob)
+
+
+@pytest.fixture
+def backend(page_bucket, login_bucket, user_bucket):
+    storage_client = MagicMock()
+    storage_client.bucket = Mock()
+    storage_client.bucket.side_effect = [page_bucket, login_bucket, user_bucket]
     return Backend(storage_client=storage_client)
 
 
@@ -200,33 +210,68 @@ def test_get_page_none(backend):
 
     assert backend.get_wiki_page('luke.md') == None
 
-@mock.patch('flaskr.backend.storage')
-def change_profile_no_username(mock_storage, backend):
-    mock_gcs_client = mock_storage.Client.return_value
-    mock_bucket = Mock()
-    
-    mock_bucket.get_blob.return_value = None
-    mock_gcs_client.get_bucket.return_value = mock_bucket
 
-    backend = Backend()
-    assert backend.change_profile("Greg") == "Failure"
-
-@mock.patch('flaskr.backend.storage')
 @mock.patch('flaskr.backend.blake2s')
-def change_profile_wrong_password(mock_storage, mock_blake, backend):
+def test_change_password(mock_blake, backend):
     mock_digest = Mock()
     mock_blake.return_value = mock_digest
-    mock_bucket = Mock()
-    mock_blob = Mock()
-    mock_file = Mock()
+    assert backend.change_profile("Timmy", "newpass", "", "", "", "", "") == "Success"
+
+def test_change_profile_picture(backend):
+    mock_file_obj = Mock()
     mock_open = Mock()
-    mock_open.__enter__ = Mock(return_value=mock_file)
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
     mock_open.__exit__ = Mock(return_value=None)
-    mock_gcs_client = mock_storage.Client.return_value
-    mock_gcs_client.get_bucket.return_value = mock_bucket
-    mock_bucket.get_blob.return_value = mock_blob
-    mock_blob.open.return_value = mock_open
-    mock_digest.hexdigest.return_value = "one_pass"
-    mock_file.read.return_value = "another_pass"
-    backend = Backend()
-    assert backend.change_profile("Tim", "pass1", "pass2") == "Failure"
+
+    mock_file_obj.save.return_value = Mock(return_value=None)
+    assert backend.change_profile("Timmy", "", "jedi.jpg", mock_file_obj, "", "", "") == "Success"
+
+def test_change_profile_picture_wrong_format(backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+
+    mock_file_obj.save.return_value = Mock(return_value=None)
+    assert backend.change_profile("Timmy", "", "jedi.gif", mock_file_obj, "", "", "") == "Failure"
+
+def test_change_banner_picture(backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+
+    mock_file_obj.save.return_value = Mock(return_value=None)
+    assert backend.change_profile("Timmy", "", "", "", "palunky.png", mock_file_obj, "") == "Success"
+
+def test_change_banner_picture_wrong_format(backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+
+    mock_file_obj.save.return_value = Mock(return_value=None)
+    assert backend.change_profile("Timmy", "", "", "", "palunky.exe", mock_file_obj, "") == "Failure"
+
+def test_change_bio(backend):
+    assert backend.change_profile("Timmy", "", "", "", "", "", "Bio test") == "Success"
+
+@mock.patch('flaskr.backend.blake2s')
+def test_change_entire_profile(mock_blake, backend):
+    mock_digest = Mock()
+    mock_blake.return_value = mock_digest
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+    mock_file_obj.save.return_value = Mock(return_value=None)
+
+    assert backend.change_profile("Timmy", "new_pass", "luke.png", mock_file_obj, "space.jpg", mock_file_obj, "Bio test") == "Success"
+
+    
+
+
+
+
+    
+
