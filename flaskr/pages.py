@@ -164,9 +164,8 @@ def make_endpoints(app, login_manager):
                     name_passed = names['name']
                     person = names
                     file = global_test.get_character_image(name_passed)
-                    
-
                     return render_template('character_profile.html',person = person,name_passed = name_passed)
+                #Pretending to add a line so I can commit
 
         return "That character doesn't exist"
 
