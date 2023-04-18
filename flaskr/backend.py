@@ -12,16 +12,19 @@ UPLOAD_FOLDER = './temp_files/'
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+
 # Function to check file format
 def allowed_file(filename, extensions):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in extensions
+
 
 # Function to remove all files from temp
 def clean_temp():
     temp_files = glob.glob("./temp_files/*")
     for file in temp_files:
         os.remove(file)
+
 
 class Backend:
     """Provides interface for google cloud storage buckets."""
@@ -34,10 +37,10 @@ class Backend:
         self.userbio_bucket_name = 'fantasticuserbio'
         self.content_bucket = self.cur_client.bucket(self.content_bucket_name)
         self.user_bucket = self.cur_client.bucket(self.user_bucket_name)
-        self.userphoto_bucket = self.cur_client.get_bucket(self.userphoto_bucket_name)
-        self.userbio_bucket = self.cur_client.get_bucket(self.userbio_bucket_name)
-
-        
+        self.userphoto_bucket = self.cur_client.get_bucket(
+            self.userphoto_bucket_name)
+        self.userbio_bucket = self.cur_client.get_bucket(
+            self.userbio_bucket_name)
 
     def get_wiki_page(self, name):
         """Provides the page blob of a page from the name."""
@@ -68,7 +71,7 @@ class Backend:
         for item in blobs:
             if username + "_profilepic.jpg" == item.name:
                 return "https://storage.cloud.google.com/fantasticuserphotos/" + username + "_profilepic"
-        
+
         return "https://storage.cloud.google.com/fantasticuserphotos/default.png"
 
     def get_banner_pic(self, username):
@@ -77,7 +80,7 @@ class Backend:
         for item in blobs:
             if username + "_bannerpic.jpg" == item.name:
                 return "https://storage.cloud.google.com/fantasticuserphotos/" + username + "_bannerpic"
-        
+
         return "https://storage.cloud.google.com/fantasticuserphotos/default_banner.jpg"
 
     def get_bio(self, username):
@@ -86,9 +89,8 @@ class Backend:
         for item in blobs:
             if item.name == username:
                 return item.download_as_string().decode('utf-8')
-        
-        return "No bio"
 
+        return "No bio"
 
     def upload(self, file_name, file_obj):
         """Uploads a file object to the database"""
@@ -106,7 +108,8 @@ class Backend:
                 zip_ref.extractall(UPLOAD_FOLDER)
 
             for file_name in os.listdir(UPLOAD_FOLDER):
-                if not allowed_file(file_name, ALLOWED_EXTENSIONS) or file_name == '':
+                if not allowed_file(file_name,
+                                    ALLOWED_EXTENSIONS) or file_name == '':
                     all_allowed = False
 
             if all_allowed is not False:
@@ -180,14 +183,17 @@ class Backend:
         blob.download_to_filename("flaskr/static/" + name)
         return "../static/" + name
 
-    def change_profile(self, username, new_pass, pic_file_name, pic_file_obj, banner_file_name, banner_file_obj, bio):
+    def change_profile(self, username, new_pass, pic_file_name, pic_file_obj,
+                       banner_file_name, banner_file_obj, bio):
         """Allows users to change profile"""
         ALLOWED_EXTENSIONS = {'jpg', 'png', 'jpeg'}
 
-        if pic_file_name != "" and not allowed_file(pic_file_name, ALLOWED_EXTENSIONS):
+        if pic_file_name != "" and not allowed_file(pic_file_name,
+                                                    ALLOWED_EXTENSIONS):
             return "Failure"
-        
-        if banner_file_name != "" and not allowed_file(banner_file_name, ALLOWED_EXTENSIONS):
+
+        if banner_file_name != "" and not allowed_file(banner_file_name,
+                                                       ALLOWED_EXTENSIONS):
             return "Failure"
 
         if new_pass != "":
@@ -214,21 +220,8 @@ class Backend:
 
             clean_temp()
 
-
         if bio != "":
             blob = self.userbio_bucket.blob(username)
             blob.upload_from_string(bio)
 
         return "Success"
-
-
-
-        
-
-               
-        
-
-
-            
-
-

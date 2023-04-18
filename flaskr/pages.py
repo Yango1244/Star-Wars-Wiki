@@ -60,7 +60,6 @@ def make_endpoints(app, login_manager):
                                urls=urls,
                                iters=iters)
 
-
     @app.route("/profiles")
     def profiles():
         users = global_test.get_users()
@@ -73,13 +72,12 @@ def make_endpoints(app, login_manager):
         bannerurl = global_test.get_banner_pic(username)
         bio = global_test.get_bio(username)
         result = {
-            "username":username, 
-            "photourl":photourl, 
-            "banner":bannerurl, 
-            "bio":bio
+            "username": username,
+            "photourl": photourl,
+            "banner": bannerurl,
+            "bio": bio
         }
-        return render_template("profile.html", result=result)    
-
+        return render_template("profile.html", result=result)
 
     @app.route("/upload")
     @login_required
@@ -165,14 +163,16 @@ def make_endpoints(app, login_manager):
             banner_pic = request.files['banner_pic']
             bio = request.form.get("bio")
 
-            result = global_test.change_profile(username, new_pass, profile_pic.filename, profile_pic, banner_pic.filename, banner_pic, bio)
+            result = global_test.change_profile(username, new_pass,
+                                                profile_pic.filename,
+                                                profile_pic,
+                                                banner_pic.filename, banner_pic,
+                                                bio)
 
             if result == "Success":
                 return render_template("edit_success.html")
 
             elif result == "Failure":
                 return render_template("upload_failure.html")
-
-
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
