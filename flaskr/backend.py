@@ -2,7 +2,7 @@
 import os
 import glob
 import zipfile
-from contentmod import contentChecker
+from flaskr.contentmod import contentChecker
 from hashlib import blake2s
 from google.cloud import storage
 from flask import Flask, request
