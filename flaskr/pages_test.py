@@ -27,26 +27,26 @@ def client(app):
 # match the changes made in the other Checkpoint Requirements.
 
 
-def unit_test_home_page(client):
+def test_home_page(client):
     resp = client.get("/")
     assert resp.status_code == 200
     assert b"Star Wars Wiki" in resp.data
 
 
-def unit_test_signup(client):
+def test_signup(client):
     resp = client.get("/signup")
     assert resp.status_code == 200
     assert b"Sign up" in resp.data
 
 
-def unit_test_login(client):
+def test_login(client):
     resp = client.get("/login")
     assert resp.status_code == 200
     assert b"Log in" in resp.data
 
 
 @patch('flaskr.backend.Backend.sign_in')
-def unit_test_login_successful(mock_sign_in, client):
+def test_login_successful(mock_sign_in, client):
     username = "Test User"
     password = "some password"
     mock_sign_in.return_value = True
@@ -61,21 +61,21 @@ def unit_test_login_successful(mock_sign_in, client):
 
 
 @patch('flaskr.backend.Backend.get_all_page_names')
-def unit_test_pages(mock_get_all_page_names, client):
+def test_pages(mock_get_all_page_names, client):
     mock_get_all_page_names.return_value = ([], [])
     resp = client.get("/pages")
     assert resp.status_code == 200
     assert b"Pages Contained in this Wiki" in resp.data
 
 
-def unit_test_upload(client):
+def test_upload(client):
     resp = client.get("/upload")
     assert resp.status_code == 200
     assert b"Select a file to upload (md, jpg, png, gif, zip)" in resp.data
 
 
 @patch('flaskr.backend.Backend.upload')
-def unit_test_upload_submit_wrong_format(mock_upload, client):
+def test_upload_submit_wrong_format(mock_upload, client):
     mock_upload.return_value = "Failure"
     file_name = "flower.txt"
     data = {'file': (io.BytesIO(b"some initial text data"), file_name)}
