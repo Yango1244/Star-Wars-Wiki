@@ -117,8 +117,7 @@ def upload_single_file(mock_storage, backend):
 @mock.patch('flaskr.backend.os')
 @mock.patch('flaskr.backend.zipfile')
 @mock.patch('flaskr.backend.storage')
-def upload_zip_all_accepted(mock_storage, mock_zip, mock_os,
-                            backend):
+def upload_zip_all_accepted(mock_storage, mock_zip, mock_os, backend):
     mock_file_obj = Mock()
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file_obj)
@@ -134,8 +133,7 @@ def upload_zip_all_accepted(mock_storage, mock_zip, mock_os,
 @mock.patch('flaskr.backend.os')
 @mock.patch('flaskr.backend.zipfile')
 @mock.patch('flaskr.backend.storage')
-def upload_zip_not_all_accepted(mock_storage, mock_zip, mock_os,
-                                backend):
+def upload_zip_not_all_accepted(mock_storage, mock_zip, mock_os, backend):
     mock_file_obj = Mock()
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file_obj)
@@ -201,11 +199,13 @@ def get_page_none(mock_storage, backend):
 
     assert backend.get_wiki_page('luke.md') == None
 
+
 def delete_blob(backend):
     blob = Mock()
     blob.delete.return_value = Mock()
     backend.delete_blob(blob)
     assert blob.delete.assert_called_once_with()
+
 
 @mock.patch('flaskr.backend.storage')
 def get_comments(mock_storage, backend):
@@ -222,15 +222,20 @@ def get_comments(mock_storage, backend):
     mock_storage.client.return_value = mock_client
     mock_client.list_blobs.return_value = [mock_blob1, mock_blob2, mock_blob3]
 
-    assert (backend.get_comments("Han")) == {1:[("Hello!", "capy")], 2:[("Hello Capy!", "jake")], 3:[("I love han!", "poe")]}
+    assert (backend.get_comments("Han")) == {
+        1: [("Hello!", "capy")],
+        2: [("Hello Capy!", "jake")],
+        3: [("I love han!", "poe")]
+    }
 
-    @mock.patch('flaskr.backend.storage')
-    def get_comments(mock_storage, backend):
-        mock_client = Mock()
-        mock_bucket = Mock()
-        mock_storage.client.return_value = mock_client
-        mock_client.get_bucket.return_value = mock_bucket
 
-        backend.upload_comment("han", "capy", "hello", "1")
+@mock.patch('flaskr.backend.storage')
+def get_comments(mock_storage, backend):
+    mock_client = Mock()
+    mock_bucket = Mock()
+    mock_storage.client.return_value = mock_client
+    mock_client.get_bucket.return_value = mock_bucket
 
-        assert mock_bucket.get_blob.assert_called_once_with("han/1.cmt/1.cmt/capy")
+    backend.upload_comment("han", "capy", "hello", "1")
+
+    assert mock_bucket.get_blob.assert_called_once_with("han/1.cmt/1.cmt/capy")

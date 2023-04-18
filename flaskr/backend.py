@@ -99,20 +99,26 @@ class Backend:
                 clean_temp()
                 return "Failure"
 
-    def upload_comment(self, page_name, username, comment, parent_comment = None):
+    def upload_comment(self, page_name, username, comment, parent_comment=None):
         """Uploads a comment for the given page under the given user name"""
         if parent_comment != "None":
             curr_num = 1
-            while self.content_bucket.get_blob(page_name + "/" + parent_comment + ".cmt" + "/" + str(curr_num) + ".cmt" + "/" + username):
+            while self.content_bucket.get_blob(page_name + "/" +
+                                               parent_comment + ".cmt" + "/" +
+                                               str(curr_num) + ".cmt" + "/" +
+                                               username):
                 curr_num += 1
 
-            comment_string = page_name + "/" + parent_comment + ".cmt" + "/" + str(curr_num) + ".cmt" + "/" + username
+            comment_string = page_name + "/" + parent_comment + ".cmt" + "/" + str(
+                curr_num) + ".cmt" + "/" + username
         else:
             curr_num = 1
-            while self.content_bucket.get_blob(page_name + "/" + str(curr_num) + ".cmt" + "/" + username):
+            while self.content_bucket.get_blob(page_name + "/" + str(curr_num) +
+                                               ".cmt" + "/" + username):
                 curr_num += 1
 
-            comment_string = page_name + "/" + str(curr_num) + ".cmt" + "/" + username
+            comment_string = page_name + "/" + str(
+                curr_num) + ".cmt" + "/" + username
 
         comment_blob = self.content_bucket.blob(comment_string)
         comment_blob.upload_from_string(comment)
@@ -129,7 +135,8 @@ class Backend:
                 if len(blob_elements) == 4:
                     child = blob_elements[2].split(".")
                     parent = blob_elements[1].split(".")
-                    if len(child) > 1 and  len(parent) > 1 and child[1] == "cmt" and parent[1] == "cmt":
+                    if len(child) > 1 and len(parent) > 1 and child[
+                            1] == "cmt" and parent[1] == "cmt":
                         username = blob_elements[-1]
                         comment = blob.download_as_bytes().decode()
                         comments[parent[0]].append((comment, username))
@@ -142,7 +149,7 @@ class Backend:
                         comments[parent[0]].insert(0, (comment, username))
 
         return comments
-        
+
     def delete_blob(self, blob_name):
         blob = self.content_bucket.get_blob(blob_name)
         print(blob_name)
