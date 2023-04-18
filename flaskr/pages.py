@@ -127,6 +127,7 @@ def make_endpoints(app, login_manager):
     def login_validate():
         if request.method == 'POST':
             form_username = request.form.get("username")
+            session['username'] = form_username
             form_password = request.form.get("password")
             valid = global_test.sign_in(form_username, form_password)
 
@@ -149,6 +150,29 @@ def make_endpoints(app, login_manager):
     @login_manager.user_loader
     def load_user(user_id):
         return users.get_user(user_id)
+
+    @app.route("/edit_profile")
+    @login_required
+    def edit_profile():
+        return render_template('edit_profile.html')
+
+    @app.route("/edit_profile/submit", methods=['POST'])
+    def submit_profile():
+        if request.method == 'POST':
+            username = session["username"]
+            new_pass = request.form.get("new_password")
+            profile_pic = request.files['profile_pic']
+            banner_pic = request.files['banner_pic']
+            bio = request.form.get("bio")
+
+            result = global_test.change_profile(username, new_pass, profile_pic.filename, profile_pic, banner_pic.filename, banner_pic, bio)
+
+            if result == "Success":
+                return render_template("edit_success.html")
+
+            elif result == "Failure":
+                return render_template("upload_failure.html")
+
 
 
     # TODO(Project 1): Implement additional routes according to the project requirements.

@@ -1,0 +1,26 @@
+{% extends "main.html" %}
+<!DOCTYPE html>
+<html>
+  <head>
+    {% block page_name %}
+    <title>Edit Profile</title>
+    {% endblock %}
+  </head>
+  <body>
+    {% block content %}
+    <h3>Manage Your Profile (leave blank to keep)</h3>
+    <form action = "/edit_profile/submit" method = "post" enctype="multipart/form-data">
+        <label for="new_password">New password: </label> <br>
+        <input type="text" id="new_password" name="new_password" placeholder="password" /> <br>
+        <label for="profile_pic"> Profile picture: (jpg, png, jpeg)</label> <br>
+        <input type="file" id="profile_pic" name="profile_pic" /> <br>
+        <label for="banner_pic"> Banner picture: (jpg, png, jpeg)</label> <br>
+        <input type="file" id="banner_pic" name="banner_pic" /> <br>
+        <label for="Bio">Bio: </label> <br>
+        <input type="text" id="bio" name="bio" placeholder="Describe yourself"  /> <br>
+        <input type="submit" value="Change">        
+
+    </form>
+    {% endblock %}
+  </body>
+</html>

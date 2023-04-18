@@ -12,21 +12,30 @@ UPLOAD_FOLDER = './temp_files/'
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# Function to check file format
+def allowed_file(filename, extensions):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in extensions
+
+# Function to remove all files from temp
+def clean_temp():
+    temp_files = glob.glob("./temp_files/*")
+    for file in temp_files:
+        os.remove(file)
 
 class Backend:
     """Provides interface for google cloud storage buckets."""
 
-    def __init__(self):
-        self.cur_client = storage.Client()
+    def __init__(self, storage_client=storage.Client()):
+        self.cur_client = storage_client
         self.content_bucket_name = 'fantasticwikicontent'
         self.user_bucket_name = 'fantasticuserinfo'
         self.userphoto_bucket_name = 'fantasticuserphotos'
         self.userbio_bucket_name = 'fantasticuserbio'
-        self.content_bucket = self.cur_client.get_bucket(
-            self.content_bucket_name)
-        self.user_bucket = self.cur_client.get_bucket(self.user_bucket_name)
-        self.userphoto = self.cur_client.get_bucket(self.userphoto_bucket_name)
-        self.userbio = self.cur_client.get_bucket(self.userbio_bucket_name)
+        self.content_bucket = self.cur_client.bucket(self.content_bucket_name)
+        self.user_bucket = self.cur_client.bucket(self.user_bucket_name)
+        self.userphoto_bucket = self.cur_client.get_bucket(self.userphoto_bucket_name)
+        self.userbio_bucket = self.cur_client.get_bucket(self.userbio_bucket_name)
 
         
 
@@ -56,7 +65,7 @@ class Backend:
         blobs = self.cur_client.list_blobs(self.userphoto_bucket_name)
         for item in blobs:
             if username + "_profilepic.jpg" == item.name:
-                return "https://storage.cloud.google.com/fantasticuserphotos/" + username + "_profilepic.jpg"
+                return "https://storage.cloud.google.com/fantasticuserphotos/" + username + "_profilepic"
         
         return "https://storage.cloud.google.com/fantasticuserphotos/default.png"
 
@@ -64,14 +73,14 @@ class Backend:
         blobs = self.cur_client.list_blobs(self.userphoto_bucket_name)
         for item in blobs:
             if username + "_bannerpic.jpg" == item.name:
-                return "https://storage.cloud.google.com/fantasticuserphotos/" + username + "_bannerpic.jpg"
+                return "https://storage.cloud.google.com/fantasticuserphotos/" + username + "_bannerpic"
         
         return "https://storage.cloud.google.com/fantasticuserphotos/default_banner.jpg"
 
     def get_bio(self, username):
         blobs = self.cur_client.list_blobs(self.userbio_bucket_name)
         for item in blobs:
-            if item.name == username + ".txt":
+            if item.name == username:
                 return item.download_as_string().decode('utf-8')
         
         return "No bio"
@@ -80,17 +89,6 @@ class Backend:
     def upload(self, file_name, file_obj):
         """Uploads a file object to the database"""
         ALLOWED_EXTENSIONS = {'md', 'jpg', 'png', 'gif', 'jpeg'}
-
-        # Function to check file format
-        def allowed_file(filename):
-            return '.' in filename and \
-                filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-        # Function to remove all files from temp
-        def clean_temp():
-            temp_files = glob.glob("./temp_files/*")
-            for file in temp_files:
-                os.remove(file)
 
         # Fails if no file submitted
         if file_name == '':
@@ -104,13 +102,13 @@ class Backend:
                 zip_ref.extractall(UPLOAD_FOLDER)
 
             for file_name in os.listdir(UPLOAD_FOLDER):
-                if not allowed_file(file_name) or file_name == '':
+                if not allowed_file(file_name, ALLOWED_EXTENSIONS) or file_name == '':
                     all_allowed = False
 
             if all_allowed is not False:
                 for file_name in os.listdir(UPLOAD_FOLDER):
-                    blob = self.content_bucket.blob(f)
-                    blob.upload_from_filename(f)
+                    blob = self.content_bucket.blob(file_name)
+                    blob.upload_from_filename(UPLOAD_FOLDER + file_name)
 
                 clean_temp()
                 return "Success"
@@ -121,7 +119,7 @@ class Backend:
 
         # Accepts file with right format and puts in bucket
         else:
-            if allowed_file(file_name):
+            if allowed_file(file_name, ALLOWED_EXTENSIONS):
                 file_obj.save(
                     os.path.join(app.config['UPLOAD_FOLDER'], file_name))
 
@@ -178,74 +176,51 @@ class Backend:
         blob.download_to_filename("flaskr/static/" + name)
         return "../static/" + name
 
-    def change_profile(self, username, old_pass=None, new_pass=None, pic_name=None, pic_obj=None, banner_name=None, banner_obj=None, bio=None):
+    def change_profile(self, username, new_pass, pic_file_name, pic_file_obj, banner_file_name, banner_file_obj, bio):
         ALLOWED_EXTENSIONS = {'jpg', 'png', 'jpeg'}
 
-        # Function to check file format
-        def allowed_file(filename):
-            return '.' in filename and \
-                filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-        # Function to remove all files from temp
-        def clean_temp():
-            temp_files = glob.glob("./temp_files/*")
-            for file in temp_files:
-                os.remove(file)
-
-        # Function to change password when given right username
-        user_blob = self.user_bucket.get_blob(username)
-
-        if not user_blob:
+        if pic_file_name != "" and not allowed_file(pic_file_name, ALLOWED_EXTENSIONS):
             return "Failure"
         
-        if new_pass:
+        if banner_file_name != "" and not allowed_file(banner_file_name, ALLOWED_EXTENSIONS):
+            return "Failure"
+
+        if new_pass != "":
+            user_blob = self.user_bucket.blob(username)
             hashed_password = blake2s(
-            (old_pass + username +
-                "fantastic").encode('ASCII')).hexdigest()
-            
-            with user_blob.open() as file:
-                correct_hash = file.read()
+                (new_pass + username + "fantastic").encode('ASCII'))
+            user_blob.upload_from_string(hashed_password.hexdigest())
 
-            print(correct_hash)
-            print(hashed_password)
-            if correct_hash == hashed_password:
-                hashed_new_password = blake2s(
-                (new_pass + username +
-                "fantastic").encode('ASCII')).hexdigest()
+        if pic_file_name != "":
+            pic_file_obj.save(
+                os.path.join(app.config['UPLOAD_FOLDER'], pic_file_name))
 
-                user_blob.upload_from_string(hashed_new_password)
-            
-            else:
-                return "Failure"
+            blob = self.userphoto_bucket.blob(username + "_profilepic")
+            blob.upload_from_filename(UPLOAD_FOLDER + pic_file_name)
 
-        if pic_name:
-            if allowed_file(pic_name):
-                pic_obj.save(
-                    os.path.join(app.config['UPLOAD_FOLDER'], pic_name))
+            clean_temp()
 
-                blob = self.userphoto.blob(username + "_profile")
-                blob.upload_from_filename(UPLOAD_FOLDER + pic_name)
-                clean_temp()
-            
-            else:
-                return "Failure"
+        if banner_file_name != "":
+            banner_file_obj.save(
+                os.path.join(app.config['UPLOAD_FOLDER'], banner_file_name))
 
-        if banner_name:
-            if allowed_file(banner_name):
-                banner_obj.save(
-                    os.path.join(app.config['UPLOAD_FOLDER'], pic_name))
-                blob = self.userphoto.blob(username + "_banner")
-                blob.upload_from_filename(UPLOAD_FOLDER + pic_name)
-                clean_temp()
-            
-            else:
-                return "Failure"
+            blob = self.userphoto_bucket.blob(username + "_bannerpic")
+            blob.upload_from_filename(UPLOAD_FOLDER + banner_file_name)
 
-        if bio:
-            blob = self.userbio.blob(username)
+            clean_temp()
+
+
+        if bio != "":
+            blob = self.userbio_bucket.blob(username)
             blob.upload_from_string(bio)
-        
+
         return "Success"
+
+
+
+        
+
+        
             
         
 
