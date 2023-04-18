@@ -2,6 +2,7 @@
 import os
 import glob
 import zipfile
+from contentmod import contentChecker
 from hashlib import blake2s
 from google.cloud import storage
 from flask import Flask, request
@@ -100,6 +101,8 @@ class Backend:
 
     def upload_comment(self, page_name, username, comment, parent_comment=None):
         """Uploads a comment for the given page under the given user name"""
+        if not contentChecker(comment):
+            return
         if parent_comment != "None":
             curr_num = 1
             while self.content_bucket.get_blob(page_name + "/" +
