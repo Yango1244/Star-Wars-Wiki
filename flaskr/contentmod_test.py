@@ -1,4 +1,4 @@
-from contentmod import contentChecker
+from flaskr.contentmod import contentChecker
 import unittest
 from unittest import mock
 from unittest.mock import Mock
