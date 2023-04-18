@@ -49,10 +49,17 @@ def login_bucket(blob):
 
 
 @pytest.fixture
-def backend(page_bucket, login_bucket):
+def character_bucket(blob):
+    return make_bucket(blob)
+
+
+@pytest.fixture
+def backend(page_bucket, login_bucket, character_bucket):
     storage_client = MagicMock()
     storage_client.bucket = Mock()
-    storage_client.bucket.side_effect = [page_bucket, login_bucket]
+    storage_client.bucket.side_effect = [
+        page_bucket, login_bucket, character_bucket
+    ]
     return Backend(storage_client=storage_client)
 
 
@@ -97,7 +104,7 @@ def test_sign_in_user_correct(mock_blake, backend, login_bucket):
     assert backend.sign_in("Capy", "CapyRight")
 
 
-def test_integration_sign_in(backend):
+def integration_sign_in(backend):
     assert backend.sign_in("Capy", "CapybaraLove")
 
 
@@ -203,8 +210,26 @@ def test_get_page_none(backend):
 
     assert backend.get_wiki_page('luke.md') == None
 
-def test_character_bucket():
+
+def integration_test_character_bucket():
     backend = Backend()
-    blobs = backend.cur_client.list_blobs(backend.character_bucket_name)
+    blobs = backend.cur_client.list_blobs(backend.character_bucket)
     characters = [blob.name for blob in blobs]
     assert "Darth Vader.png" in characters
+
+
+def test_character_bucket(backend, character_bucket):
+    mock_bucket = Mock()
+    character_bucket.return_value = mock_bucket
+    characters = [MagicMock() for _ in range(7)]
+    characters[0].name = "Anakin Skywalker"
+    characters[1].name = "Darth Vader"
+    characters[2].name = "Han Solo"
+    characters[3].name = "Leia Organa"
+    characters[4].name = "Luke Skywalker"
+    characters[5].name = "Obi-Wan Kenobi"
+    characters[6].name = "Palpatine"
+    character_bucket.list_blobs.return_value = characters
+
+    names = [character.name for character in characters]
+    assert "Leia Organa" in names
