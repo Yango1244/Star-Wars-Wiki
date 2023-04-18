@@ -44,12 +44,6 @@ def page_bucket(blob):
 def login_bucket(blob):
     return make_bucket(blob)
 
-
-@pytest.fixture
-def backend(page_bucket, login_bucket):
-    storage_client = MagicMock()
-    storage_client.bucket = Mock()
-    storage_client.bucket.side_effect = [page_bucket, login_bucket]
 @pytest.fixture
 def user_bucket(blob):
     return make_bucket(blob)
@@ -267,11 +261,3 @@ def test_change_entire_profile(mock_blake, backend):
     mock_file_obj.save.return_value = Mock(return_value=None)
 
     assert backend.change_profile("Timmy", "new_pass", "luke.png", mock_file_obj, "space.jpg", mock_file_obj, "Bio test") == "Success"
-
-    
-
-
-
-
-    
-
