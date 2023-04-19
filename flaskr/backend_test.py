@@ -44,12 +44,14 @@ def content_bucket(blob):
 def user_bucket(blob):
     return make_bucket(blob)
 
+
 @pytest.fixture
 def client(content_bucket, user_bucket):
     storage_client = MagicMock()
     storage_client.bucket = Mock()
     storage_client.bucket.side_effect = [content_bucket, user_bucket]
     return storage_client
+
 
 @pytest.fixture
 def backend(client):
@@ -202,6 +204,7 @@ def test_get_page_none(backend):
     mock_file_obj.save.return_value = Mock(return_value=None)
 
     assert backend.get_wiki_page('luke.md') == None
+
 
 def test_delete_blob(content_bucket, blob, backend):
     backend.delete_blob("test_name")
