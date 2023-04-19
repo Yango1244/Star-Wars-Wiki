@@ -10,7 +10,6 @@ import requests
 import math
 from io import BytesIO
 
-
 UPLOAD_FOLDER = './temp_files/'
 
 app = Flask(__name__)
@@ -24,9 +23,11 @@ class Backend:
         self.cur_client = storage_client
         self.content_bucket_name = 'fantasticwikicontent'
         self.user_bucket_name = 'fantasticuserinfo'
-        self.content_bucket = self.cur_client.get_bucket(self.content_bucket_name)
+        self.content_bucket = self.cur_client.get_bucket(
+            self.content_bucket_name)
         self.user_bucket = self.cur_client.get_bucket(self.user_bucket_name)
-        self.character_bucket = self.cur_client.get_bucket('fantastic_starwars_characters')
+        self.character_bucket = self.cur_client.get_bucket(
+            'fantastic_starwars_characters')
         self.character_list = []
 
     def get_wiki_page(self, name):
@@ -146,9 +147,12 @@ class Backend:
         blob.download_to_filename("flaskr/static/" + name)
         return "../static/" + name
 
-
     def get_character_names(self):
-        character_names = [Path(blob.name).stem for blob in self.character_bucket.list_blobs() if blob.name.endswith(("png", "jpg", "jpeg"))]
+        character_names = [
+            Path(blob.name).stem
+            for blob in self.character_bucket.list_blobs()
+            if blob.name.endswith(("png", "jpg", "jpeg"))
+        ]
         return character_names
 
     def request_maker(self):
@@ -156,7 +160,8 @@ class Backend:
         if self.character_list == []:
             data_list = []
             for number in range(1, 10):
-                response = requests.get(f"https://swapi.dev/api/people/?page={number}")
+                response = requests.get(
+                    f"https://swapi.dev/api/people/?page={number}")
                 if response.status_code != 200:
                     continue
                 else:
@@ -167,15 +172,16 @@ class Backend:
                     data_list.append(filtered_data)
 
             self.character_list = data_list
-            
+
             return self.character_list
         else:
             #IF the API has already been called, we can just access the information directly, no need to use the API again.
             return self.character_list
-    def get_character_image(self,name):
 
-        blob = self.character_bucket.get_blob(name+str('.png'))
-       
+    def get_character_image(self, name):
+
+        blob = self.character_bucket.get_blob(name + str('.png'))
+
         if blob is None:
             print('hello')
             return BytesIO()
@@ -184,28 +190,19 @@ class Backend:
             print(type(output))
             return BytesIO(output)
 
-    def get_info(self,global_people,result):
+    def get_info(self, global_people, result):
         #loop through all pages
         for page in global_people:
             #loop through the dictionary in a page
             for names in page:
-            #Validate each name we go through
+                #Validate each name we go through
                 check_name = names['name'].lower()
-                good_name_two = list([val for val in check_name if val.isalpha()])
+                good_name_two = list(
+                    [val for val in check_name if val.isalpha()])
                 valid_name_two = "".join(good_name_two)
                 #Check if the name we clicked on matches the one we're on
                 if result in valid_name_two:
                     names_passed = names['name']
                     person = names
-                    return person,names_passed
-        return None,None
-                
-
-        
-        
-
-        
-       
-   
-
-
+                    return person, names_passed
+        return None, None

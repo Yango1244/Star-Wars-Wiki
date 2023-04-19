@@ -83,21 +83,23 @@ def test_upload_submit_wrong_format(mock_upload, client):
     assert resp.status_code == 200
     assert b"Incorrect file format or file not selected" in resp.data
 
+
 def test_edit_profile(client):
     resp = client.get("/edit_profile")
     assert resp.status_code == 200
     assert b"Manage Your Profile" in resp.data
+
 
 def test_character_profile_failed(client):
     resp = client.get("/character_profile<name>")
     assert resp.status_code == 200
     assert b"That character doesn't exist" in resp.data
 
+
 def test_character_profile_passed(client):
     resp = client.get("/character_profile<Anakin Skywalker>")
     assert resp.status_code == 200
     assert b"Profile:" in resp.data
-
 
 
 # TODO(Project 1): Write tests for other routes.

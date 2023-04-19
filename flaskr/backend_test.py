@@ -226,19 +226,20 @@ def test_character_bucket_get_names(backend, character_bucket):
     backend.character_bucket.return_value = character_bucket
     backend.character_bucket.list_blobs.return_value = characters
     names = backend.get_character_names()
-    
+
     assert 'Anakin Skywalker' in names
+
 
 # def test_get_image_success(backend, character_bucket, blob, file_stream):
 #     file_stream.read.return_value = "test data".encode()
-    
+
 #     value = backend.get_character_image("test")
 #     backend.character_bucket.get_blob.assert_called_with("test")
 #     backend.blob.open.assert_called_with("rb")
 #     backend.f.read.return_value = bytes
 
-    
 #     assert == "test data".encode()
+
 
 def test_get_image_failure(backend, character_bucket):
     backend.character_bucket.get_blob.return_value = None
@@ -246,5 +247,3 @@ def test_get_image_failure(backend, character_bucket):
     value = backend.get_character_image("test")
 
     assert value.read() == "".encode()
-
-
