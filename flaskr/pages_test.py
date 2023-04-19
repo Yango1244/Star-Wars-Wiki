@@ -129,6 +129,7 @@ def test_edit_profile_failure(mock_profile, client):
     assert resp.status_code == 200
     assert b"Wrong file format chosen" in resp.data
 
+
 @patch('flaskr.backend.Backend.get_users')
 def test_profiles(mock_users, client):
     mock_users.return_value = []
@@ -145,9 +146,17 @@ def test_user_profile_invalid_user(mock_users, client):
     assert b"User does not exist" in resp.data
 
 
+@patch('flaskr.backend.Backend.get_bio')
+@patch('flaskr.backend.Backend.get_banner_pic')
+@patch('flaskr.backend.Backend.get_profile_pic')
 @patch('flaskr.backend.Backend.get_users')
-def test_user_profile_valid_user(mock_users, client):
+def test_user_profile_valid_user(mock_users, mock_profile_pic, mock_banner_pic,
+                                 mock_bio, client):
     mock_users.return_value = ["yinka23", "Blake33", "Bart"]
+    mock_profile_pic.return_value = "/fakeurl.png"
+    mock_banner_pic.return_value = "/fakeurl.png"
+    mock_bio.return_value = "Test bio"
+
     resp = client.get("/profiles/yinka23")
     assert resp.status_code == 200
     assert b"yinka23" in resp.data
