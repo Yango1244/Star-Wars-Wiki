@@ -2,10 +2,12 @@
 import os
 import glob
 import zipfile
+from flaskr.contentmod import contentChecker
 from hashlib import blake2s
 from google.cloud import storage
 from flask import Flask, request
 from pathlib import Path
+from collections import defaultdict
 
 UPLOAD_FOLDER = './temp_files/'
 
@@ -96,6 +98,63 @@ class Backend:
             else:
                 clean_temp()
                 return "Failure"
+
+    def upload_comment(self, page_name, username, comment, parent_comment=None):
+        """Uploads a comment for the given page under the given user name"""
+        if not contentChecker(comment):
+            return
+        curr_num = 1
+        if parent_comment != "None":
+            while self.content_bucket.get_blob(page_name + "/" +
+                                               parent_comment + ".cmt" + "/" +
+                                               str(curr_num) + ".cmt" + "/" +
+                                               username):
+                curr_num += 1
+
+            comment_string = page_name + "/" + parent_comment + ".cmt" + "/" + str(
+                curr_num) + ".cmt" + "/" + username
+        else:
+            while self.content_bucket.get_blob(page_name + "/" + str(curr_num) +
+                                               ".cmt" + "/" + username):
+                curr_num += 1
+
+            comment_string = page_name + "/" + str(
+                curr_num) + ".cmt" + "/" + username
+
+        comment_blob = self.content_bucket.blob(comment_string)
+        comment_blob.upload_from_string(comment)
+
+    def get_comments(self, page_name):
+        """Returns a dictionary where the keys are the main comments of the page and the values are a tuple of the form (comment_string, username)"""
+        comments = defaultdict(list)
+        blobs = self.cur_client.list_blobs(self.content_bucket_name)
+        for blob in blobs:
+            blob_name = blob.name
+            blob_elements = blob_name.split("/")
+            if blob_elements[0] == page_name:
+                if len(blob_elements) == 4:
+                    child = blob_elements[2].split(".")
+                    parent = blob_elements[1].split(".")
+                    if len(child) > 1 and len(parent) > 1 and child[
+                            1] == "cmt" and parent[1] == "cmt":
+                        username = blob_elements[-1]
+                        comment = blob.download_as_bytes().decode()
+                        comments[parent[0]].append((comment, username))
+
+                elif len(blob_elements) == 3:
+                    parent = blob_elements[1].split(".")
+                    if len(parent) > 1 and parent[1] == "cmt":
+                        username = blob_elements[-1]
+                        comment = blob.download_as_bytes().decode()
+                        comments[parent[0]].insert(0, (comment, username))
+
+        return comments
+
+    def delete_blob(self, blob_name):
+        """Deletes a blob with a certain name from GCS"""
+        blob = self.content_bucket.get_blob(blob_name)
+        if blob:
+            blob.delete()
 
     def sign_up(self, username, password):
         """Adds user data if it does not exist along with a hashed password."""
