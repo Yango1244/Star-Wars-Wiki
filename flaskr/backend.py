@@ -103,8 +103,8 @@ class Backend:
         """Uploads a comment for the given page under the given user name"""
         if not contentChecker(comment):
             return
+        curr_num = 1
         if parent_comment != "None":
-            curr_num = 1
             while self.content_bucket.get_blob(page_name + "/" +
                                                parent_comment + ".cmt" + "/" +
                                                str(curr_num) + ".cmt" + "/" +
@@ -114,7 +114,6 @@ class Backend:
             comment_string = page_name + "/" + parent_comment + ".cmt" + "/" + str(
                 curr_num) + ".cmt" + "/" + username
         else:
-            curr_num = 1
             while self.content_bucket.get_blob(page_name + "/" + str(curr_num) +
                                                ".cmt" + "/" + username):
                 curr_num += 1
@@ -126,10 +125,9 @@ class Backend:
         comment_blob.upload_from_string(comment)
 
     def get_comments(self, page_name):
-        """Returns a dictionary where the keys are the main comments of the page with value of a list of child comments for a given page"""
+        """Returns a dictionary where the keys are the main comments of the page and the values are a tuple of the form (comment_string, username)"""
         comments = defaultdict(list)
         blobs = self.cur_client.list_blobs(self.content_bucket_name)
-
         for blob in blobs:
             blob_name = blob.name
             blob_elements = blob_name.split("/")
@@ -153,8 +151,8 @@ class Backend:
         return comments
 
     def delete_blob(self, blob_name):
+        """Deletes a blob with a certain name from GCS"""
         blob = self.content_bucket.get_blob(blob_name)
-        print(blob_name)
         if blob:
             blob.delete()
 

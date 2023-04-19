@@ -36,47 +36,50 @@ def sha256(return_value):
 
 
 @pytest.fixture
-def page_bucket(blob):
+def content_bucket(blob):
     return make_bucket(blob)
 
 
 @pytest.fixture
-def login_bucket(blob):
+def user_bucket(blob):
     return make_bucket(blob)
 
-
 @pytest.fixture
-def backend(page_bucket, login_bucket):
+def client(content_bucket, user_bucket):
     storage_client = MagicMock()
     storage_client.bucket = Mock()
-    storage_client.bucket.side_effect = [page_bucket, login_bucket]
-    return Backend(storage_client=storage_client)
+    storage_client.bucket.side_effect = [content_bucket, user_bucket]
+    return storage_client
+
+@pytest.fixture
+def backend(client):
+    return Backend(storage_client=client)
 
 
-def test_sign_up_add_user(backend, login_bucket):
-    login_bucket.get_blob.return_value = None
+def test_sign_up_add_user(backend, user_bucket):
+    user_bucket.get_blob.return_value = None
 
     backend.sign_up("Capy", "CapybaraLove")
-    login_bucket.blob.assert_called_once_with('Capy')
+    user_bucket.blob.assert_called_once_with('Capy')
 
 
-def test_sign_up_user_exists(backend, login_bucket):
+def test_sign_up_user_exists(backend, user_bucket):
     # Blob will exist so we expect to only call get_blob once
-    login_bucket.get_blob.return_value = True
+    user_bucket.get_blob.return_value = True
 
     backend.sign_up("Capy", "CapybaraLove")
-    login_bucket.get_blob.assert_called_once_with('Capy')
-    assert not login_bucket.blob.called
+    user_bucket.get_blob.assert_called_once_with('Capy')
+    assert not user_bucket.blob.called
 
 
-def test_sign_in_user_incorrect(backend, login_bucket):
+def test_sign_in_user_incorrect(backend, user_bucket):
     # Blob won't exist so we expect to return False
-    login_bucket.get_blob.return_value = None
+    user_bucket.get_blob.return_value = None
     assert not backend.sign_in("Capy", "CapyWrong")
 
 
 @mock.patch('flaskr.backend.blake2s')
-def test_sign_in_user_correct(mock_blake, backend, login_bucket):
+def test_sign_in_user_correct(mock_blake, backend, user_bucket):
     mock_digest = Mock()
     mock_blake.return_value = mock_digest
     mock_bucket = Mock()
@@ -85,8 +88,8 @@ def test_sign_in_user_correct(mock_blake, backend, login_bucket):
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file)
     mock_open.__exit__ = Mock(return_value=None)
-    login_bucket.return_value = mock_bucket
-    login_bucket.get_blob.return_value = mock_blob
+    user_bucket.return_value = mock_bucket
+    user_bucket.get_blob.return_value = mock_blob
     mock_blob.open.return_value = mock_open
     mock_file.read.return_value = "Correct"
     mock_digest.hexdigest.return_value = "Correct"
@@ -200,43 +203,31 @@ def test_get_page_none(backend):
 
     assert backend.get_wiki_page('luke.md') == None
 
-
-def test_delete_blob(backend):
-    blob = Mock()
-    blob.delete.return_value = Mock()
-    backend.delete_blob(blob)
-    assert blob.delete.assert_called_once_with()
+def test_delete_blob(content_bucket, blob, backend):
+    backend.delete_blob("test_name")
+    content_bucket.get_blob.assert_called_once_with("test_name")
+    blob.delete.assert_called_once()
 
 
-@mock.patch('flaskr.backend.storage')
-def test_get_comments(mock_storage, backend):
+def test_get_comments(client, backend):
     mock_blob1 = Mock()
     mock_blob2 = Mock()
     mock_blob3 = Mock()
-    mock_blob1.name.return_value = "Han/1.cmt/capy"
-    mock_blob1.download_as_bytes = "Hello!".encode('utf-8')
-    mock_blob2.name.return_value = "Han/2.cmt/jake"
-    mock_blob2.download_as_bytes = "Hello Capy!".encode('utf-8')
-    mock_blob3.name.return_value = "Han/3.cmt/poe"
-    mock_blob3.download_as_bytes = "I love han!".encode('utf-8')
-    mock_client = Mock()
-    mock_storage.client.return_value = mock_client
-    mock_client.list_blobs.return_value = [mock_blob1, mock_blob2, mock_blob3]
-
+    mock_blob1.name = "Han/1.cmt/capy"
+    mock_blob1.download_as_bytes.return_value = "Hello!".encode('utf-8')
+    mock_blob2.name = "Han/2.cmt/jake"
+    mock_blob2.download_as_bytes.return_value = "Hello Capy!".encode('utf-8')
+    mock_blob3.name = "Han/3.cmt/poe"
+    mock_blob3.download_as_bytes.return_value = "I love han!".encode('utf-8')
+    client.list_blobs.return_value = [mock_blob1, mock_blob2, mock_blob3]
     assert (backend.get_comments("Han")) == {
-        1: [("Hello!", "capy")],
-        2: [("Hello Capy!", "jake")],
-        3: [("I love han!", "poe")]
+        "1": [("Hello!", "capy")],
+        "2": [("Hello Capy!", "jake")],
+        "3": [("I love han!", "poe")]
     }
 
 
-@mock.patch('flaskr.backend.storage')
-def test_get_comment(mock_storage, backend):
-    mock_client = Mock()
-    mock_bucket = Mock()
-    mock_storage.client.return_value = mock_client
-    mock_client.get_bucket.return_value = mock_bucket
-
+def test_upload_comment(content_bucket, backend):
+    content_bucket.get_blob.return_value = False
     backend.upload_comment("han", "capy", "hello", "1")
-
-    assert mock_bucket.get_blob.assert_called_once_with("han/1.cmt/1.cmt/capy")
+    content_bucket.get_blob.assert_called_once_with("han/1.cmt/1.cmt/capy")
