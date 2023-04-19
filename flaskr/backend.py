@@ -175,12 +175,31 @@ class Backend:
     def get_character_image(self,name):
 
         blob = self.character_bucket.get_blob(name+str('.png'))
+       
         if blob is None:
-            print('empty')
+            print('hello')
             return BytesIO()
         with blob.open('rb') as f:
             output = f.read()
+            print(type(output))
             return BytesIO(output)
+
+    def get_info(self,global_people,result):
+        #loop through all pages
+        for page in global_people:
+            #loop through the dictionary in a page
+            for names in page:
+            #Validate each name we go through
+                check_name = names['name'].lower()
+                good_name_two = list([val for val in check_name if val.isalpha()])
+                valid_name_two = "".join(good_name_two)
+                #Check if the name we clicked on matches the one we're on
+                if result in valid_name_two:
+                    names_passed = names['name']
+                    person = names
+                    return person,names_passed
+        return None,None
+                
 
         
         

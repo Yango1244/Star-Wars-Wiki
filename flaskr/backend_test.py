@@ -7,6 +7,9 @@ from google.cloud import storage
 from google.cloud.storage.bucket import Bucket
 
 import pytest
+import glob
+
+# TODO(Project 1): Write tests for Backend methods.
 
 
 @pytest.fixture
@@ -46,21 +49,28 @@ def login_bucket(blob):
 
 
 @pytest.fixture
-def backend(page_bucket, login_bucket):
+def character_bucket(blob):
+    return make_bucket(blob)
+
+
+@pytest.fixture
+def backend(page_bucket, login_bucket, character_bucket):
     storage_client = MagicMock()
     storage_client.bucket = Mock()
-    storage_client.bucket.side_effect = [page_bucket, login_bucket]
+    storage_client.bucket.side_effect = [
+        page_bucket, login_bucket, character_bucket
+    ]
     return Backend(storage_client=storage_client)
 
 
-def test_sign_up_add_user(backend, login_bucket):
+def sign_up_add_user(backend, login_bucket):
     login_bucket.get_blob.return_value = None
 
     backend.sign_up("Capy", "CapybaraLove")
     login_bucket.blob.assert_called_once_with('Capy')
 
 
-def test_sign_up_user_exists(backend, login_bucket):
+def sign_up_user_exists(backend, login_bucket):
     # Blob will exist so we expect to only call get_blob once
     login_bucket.get_blob.return_value = True
 
@@ -76,7 +86,7 @@ def test_sign_in_user_incorrect(backend, login_bucket):
 
 
 @mock.patch('flaskr.backend.blake2s')
-def test_sign_in_user_correct(mock_blake, backend, login_bucket):
+def sign_in_user_correct(mock_blake, backend, login_bucket):
     mock_digest = Mock()
     mock_blake.return_value = mock_digest
     mock_bucket = Mock()
@@ -199,3 +209,42 @@ def test_get_page_none(backend):
     mock_file_obj.save.return_value = Mock(return_value=None)
 
     assert backend.get_wiki_page('luke.md') == None
+
+
+def test_character_bucket_get_names(backend, character_bucket):
+    mock_bucket = Mock()
+    character_bucket.return_value = mock_bucket
+    characters = [MagicMock() for _ in range(7)]
+    characters[0].name = "Anakin Skywalker.png"
+    characters[1].name = "Darth Vader.png"
+    characters[2].name = "Han Solo.png"
+    characters[3].name = "Leia Organa.png"
+    characters[4].name = "Luke Skywalker.png"
+    characters[5].name = "Obi-Wan Kenobi.png"
+    characters[6].name = "Palpatine.png"
+    character_bucket.list_blobs.return_value = characters
+    backend.character_bucket.return_value = character_bucket
+    backend.character_bucket.list_blobs.return_value = characters
+    names = backend.get_character_names()
+    
+    assert 'Anakin Skywalker' in names
+
+# def test_get_image_success(backend, character_bucket, blob, file_stream):
+#     file_stream.read.return_value = "test data".encode()
+    
+#     value = backend.get_character_image("test")
+#     backend.character_bucket.get_blob.assert_called_with("test")
+#     backend.blob.open.assert_called_with("rb")
+#     backend.f.read.return_value = bytes
+
+    
+#     assert == "test data".encode()
+
+def test_get_image_failure(backend, character_bucket):
+    backend.character_bucket.get_blob.return_value = None
+
+    value = backend.get_character_image("test")
+
+    assert value.read() == "".encode()
+
+

@@ -10,9 +10,6 @@ from flaskr.models import Users
 from fileinput import filename
 from flask import request
 
-import json
-from io import BytesIO
-import base64
 
 
 
@@ -150,30 +147,16 @@ def make_endpoints(app, login_manager):
         result = "".join(good_name)
         #List of lists of dictionaries
         global_people = global_test.request_maker()
-
-        #loop through all pages
-        for page in global_people:
-            #loop through the dictionary in a page
-            for names in page:
-            #Validate each name we go through
-                check_name = names['name'].lower()
-                good_name_two = list([val for val in check_name if val.isalpha()])
-                valid_name_two = "".join(good_name_two)
-                #Check if the name we clicked on matches the one we're on
-                if result in valid_name_two:
-                    name_passed = names['name']
-                    person = names
-                    file = global_test.get_character_image(name_passed)
-                    return render_template('character_profile.html',person = person,name_passed = name_passed)
-                #Pretending to add a line so I can commit
-
-        return "That character doesn't exist"
+        #Returns a dictionary with the correct character information
+        person_info, name_passed = global_test.get_info(global_people,result)
+        #Simplified logic
+        if person_info and name_passed:
+            return render_template('character_profile.html',person_info = person_info,name_passed = name_passed)
+        else:
+            return "That character doesn't exist"
 
     @app.route("/images/<image>")
     def images(image):
         """Returns the image from backend.get_image."""
         return send_file(global_test.get_character_image(image), mimetype='image/png')
 
-    
-
-    # TODO(Project 1): Implement additional routes according to the project requirements.
