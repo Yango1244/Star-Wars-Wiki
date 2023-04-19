@@ -84,4 +84,72 @@ def test_upload_submit_wrong_format(mock_upload, client):
     assert b"Incorrect file format or file not selected" in resp.data
 
 
+@patch('flaskr.backend.Backend.change_profile')
+def test_edit_profile_success(mock_profile, client):
+    mock_profile.return_value = "Success"
+    with client.session_transaction() as sess:
+        sess['username'] = 'Tim'
+
+    new_password = "test_pass"
+    profile_pic = (io.BytesIO(b"some initial text data"), "profile_pic.jpg")
+    banner_pic = (io.BytesIO(b"some initial text data"), "banner_pic.jpg")
+    bio = "This is a test bio"
+
+    data = {
+        "new_password": new_password,
+        "profile_pic": profile_pic,
+        "banner_pic": banner_pic,
+        "bio": bio
+    }
+
+    resp = client.post("/edit_profile/submit", data=data)
+    assert resp.status_code == 200
+    assert b"Profile successfully updated" in resp.data
+
+
+@patch('flaskr.backend.Backend.change_profile')
+def test_edit_profile_failure(mock_profile, client):
+    mock_profile.return_value = "Failure"
+    with client.session_transaction() as sess:
+        sess['username'] = 'Tim'
+
+    new_password = "test_pass"
+    profile_pic = (io.BytesIO(b"some initial text data"), "profile_pic.exe")
+    banner_pic = (io.BytesIO(b"some initial text data"), "banner_pic.exe")
+    bio = "This is a test bio"
+
+    data = {
+        "new_password": new_password,
+        "profile_pic": profile_pic,
+        "banner_pic": banner_pic,
+        "bio": bio
+    }
+
+    resp = client.post("/edit_profile/submit", data=data)
+    assert resp.status_code == 200
+    assert b"Wrong file format chosen" in resp.data
+
+
+def test_profiles(client):
+    resp = client.get("/profiles")
+    assert resp.status_code == 200
+    assert b"User profiles" in resp.data
+
+
+@patch('flaskr.backend.Backend.get_users')
+def test_user_profile_invalid_user(mock_users, client):
+    mock_users.return_value = ["yinka23", "Blake33", "Bart"]
+    resp = client.get("/profiles/bobby34")
+    assert resp.status_code == 200
+    assert b"User does not exist" in resp.data
+
+
+@patch('flaskr.backend.Backend.get_users')
+def test_user_profile_valid_user(mock_users, client):
+    mock_users.return_value = ["yinka23", "Blake33", "Bart"]
+    resp = client.get("/profiles/yinka23")
+    assert resp.status_code == 200
+    assert b"yinka23" in resp.data
+
+
 # TODO(Project 1): Write tests for other routes.

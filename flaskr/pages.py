@@ -68,6 +68,10 @@ def make_endpoints(app, login_manager):
 
     @app.route("/profiles/<username>")
     def user_profile(username):
+        users = global_test.get_users()
+        if username not in users:
+            return render_template("invalid_user.html")
+
         photourl = global_test.get_profile_pic(username)
         bannerurl = global_test.get_banner_pic(username)
         bio = global_test.get_bio(username)
@@ -173,6 +177,6 @@ def make_endpoints(app, login_manager):
                 return render_template("edit_success.html")
 
             elif result == "Failure":
-                return render_template("upload_failure.html")
+                return render_template("edit_failure.html")
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
