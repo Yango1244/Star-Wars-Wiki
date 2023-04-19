@@ -129,8 +129,9 @@ def test_edit_profile_failure(mock_profile, client):
     assert resp.status_code == 200
     assert b"Wrong file format chosen" in resp.data
 
-
-def test_profiles(client):
+@patch('flaskr.backend.Backend.get_users')
+def test_profiles(mock_users, client):
+    mock_users.return_value = []
     resp = client.get("/profiles")
     assert resp.status_code == 200
     assert b"User profiles" in resp.data
