@@ -27,7 +27,7 @@ def client(app):
 # match the changes made in the other Checkpoint Requirements.
 
 
-def test_home_page(client):
+def home_page(client):
     resp = client.get("/")
     assert resp.status_code == 200
     assert b"Star Wars Wiki" in resp.data
@@ -82,7 +82,6 @@ def test_upload_submit_wrong_format(mock_upload, client):
     resp = client.post("/upload/upload_submit", data=data)
     assert resp.status_code == 200
     assert b"Incorrect file format or file not selected" in resp.data
-
 
 @patch('flaskr.backend.Backend.change_profile')
 def test_edit_profile_success(mock_profile, client):
@@ -160,6 +159,22 @@ def test_user_profile_valid_user(mock_users, mock_profile_pic, mock_banner_pic,
     resp = client.get("/profiles/yinka23")
     assert resp.status_code == 200
     assert b"yinka23" in resp.data
+def test_edit_profile(client):
+    resp = client.get("/edit_profile")
+    assert resp.status_code == 200
+    assert b"Manage Your Profile" in resp.data
+
+
+def test_character_profile_failed(client):
+    resp = client.get("/character_profile<name>")
+    assert resp.status_code == 200
+    assert b"That character doesn't exist" in resp.data
+
+
+def test_character_profile_passed(client):
+    resp = client.get("/character_profile<Anakin Skywalker>")
+    assert resp.status_code == 200
+    assert b"Profile:" in resp.data
 
 
 # TODO(Project 1): Write tests for other routes.
