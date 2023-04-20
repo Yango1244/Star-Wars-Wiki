@@ -350,3 +350,12 @@ class Backend:
                     person = names
                     return person, names_passed
         return None, None
+    def get_description_from_bucket(self, name):
+        bucket = self.content_bucket
+        blob = bucket.blob(name)
+        if not blob.exists():
+            return "No Description"
+        else:
+            blob_content = blob.download_as_string()
+            text_content = blob_content.decode('utf-8')
+            return text_content
