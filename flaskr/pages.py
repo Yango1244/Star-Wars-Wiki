@@ -32,10 +32,9 @@ def make_endpoints(app, login_manager):
         files, page_names = global_test.get_all_page_names()
 
         result = {page_names[i]: files[i] for i in range(len(page_names))}
-        descriptions = []
+        descriptions = {}
         for page in result:
-            descriptions.append(get_description(page))
-
+            descriptions[page] = (get_description(page))
         return render_template("pages.html",
                                result=result,
                                descriptions=descriptions)

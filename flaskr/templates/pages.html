@@ -24,8 +24,11 @@
         
         {% for key in result%}
         
-        <li><a href="/pages/{{result[key]}}">{{key}}</a></li>
-        <h3>{{descriptions[key]}}</h3>
+        <li><a href="/pages/{{result[key]}}">{{key}}</a>
+        <ul>
+            <li><p>{{descriptions[key]}}</p></li>
+        </ul>
+        </li>
         
         {% endfor %}
 

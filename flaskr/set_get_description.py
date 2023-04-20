@@ -23,9 +23,7 @@ def set_description(description, filename):
     new_filename = filename + "_description.md"
     blob_filename = filename + "/description.md"
     file = open(new_filename, "w")
-    print("writing description file")
     file.write(description)
-    print(file)
     file.close()
     filestorage_obj = FileStorage(stream = open(new_filename, 'rb'), filename= new_filename)
     back = Backend()
@@ -41,9 +39,7 @@ def get_description(wiki_name):
     get txt file from bucket
     return string, error message if no description
     '''
-    print("called")
-    d_name,ext = wiki_name.split('.')
-    d_name = d_name + "_description.md"
+    d_name = wiki_name + "_description.md"
     back = Backend()
     description = back.get_description_from_bucket(d_name)
     return description
