@@ -22,8 +22,11 @@ class Backend:
         self.cur_client = storage_client
         self.content_bucket_name = 'fantasticwikicontent'
         self.user_bucket_name = 'fantasticuserinfo'
+        self.character_bucket_name = 'fantastic_starwars_characters'
         self.content_bucket = self.cur_client.bucket(self.content_bucket_name)
         self.user_bucket = self.cur_client.bucket(self.user_bucket_name)
+        self.character_bucket = self.cur_client.bucket(
+            self.character_bucket_name)
 
     def get_wiki_page(self, name):
         """Provides the page blob of a page from the name."""
