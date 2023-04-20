@@ -78,6 +78,9 @@ def client(content_bucket, user_bucket, character_bucket, photo_bucket,
 def backend(client):
     return Backend(storage_client=client)
 
+@pytest.fixture
+def backend(client):
+    return Backend(storage_client=client)
 
 def test_sign_up_add_user(backend, user_bucket):
     user_bucket.get_blob.return_value = None
