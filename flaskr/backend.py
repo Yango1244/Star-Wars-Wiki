@@ -42,6 +42,7 @@ class Backend:
         return files, file_names
 
     def upload(self, file_name, file_obj):
+        print("file is " + str(type(file_obj)))
         """Uploads a file object to the database"""
         ALLOWED_EXTENSIONS = {'md', 'jpg', 'png', 'gif', 'jpeg'}
 
@@ -140,3 +141,11 @@ class Backend:
         blob = bucket.blob(name)
         blob.download_to_filename("flaskr/static/" + name)
         return "../static/" + name
+
+    def get_description_from_bucket(self, name):
+        bucket = self.content_bucket
+        blob = bucket.blob(name)
+        print(blob)
+        blob_content = blob.download_as_string()
+        text_content = blob_content.decode('utf-8')
+        return blob_content

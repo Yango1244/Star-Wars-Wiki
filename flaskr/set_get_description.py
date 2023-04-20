@@ -1,5 +1,6 @@
-from flaskr.backend import Backend
+from backend import Backend
 from flask import Flask
+from werkzeug.datastructures import FileStorage
 import os
 
 UPLOAD_FOLDER = './temp_files/'
@@ -18,15 +19,16 @@ def set_description(description, filename):
     upload file to gcs bucket
     '''
     filename, ext = filename.split('.')
-    new_filename = filename + "_description.txt"
-    blob_filename = filename + "/description.txt"
-    f = open(new_filename, "w")
+    new_filename = filename + "_description.md"
+    blob_filename = filename + "/description.md"
+    file = open(new_filename, "w")
     print("writing description file")
-    f.write(description)
-    print(f)
-    f.close()
+    file.write(description)
+    print(file)
+    file.close()
+    filestorage_obj = FileStorage(stream = open(new_filename, 'rb'), filename= new_filename)
     back = Backend()
-    back.upload(blob_filename, f)
+    back.upload(new_filename, filestorage_obj)
 
 def get_description(wiki_name):
     '''
@@ -38,14 +40,9 @@ def get_description(wiki_name):
     return string, error message if no description
     '''
     d_name,ext = wiki_name.split('.')
-    d_name = d_name + "_description.txt"
+    d_name = d_name + "_description.md"
     back = Backend()
-    description = back.get_wiki_page(d_name)
-    if description is None:
-        return None
-    f = open(description, 'r')
-    print(f)
-    content = f.read()
-    f.close()
-    return content
-     
+    description = back.get_description_from_bucket(d_name)
+    return description
+# set_description("Wookies information", "wookie.md")   
+print(get_description("wookie.md"))
