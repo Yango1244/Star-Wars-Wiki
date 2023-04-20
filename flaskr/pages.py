@@ -8,6 +8,8 @@ from flask_login import current_user
 from flaskr.backend import Backend
 from flaskr.models import User
 from flaskr.models import Users
+from flaskr.set_get_description import get_description
+from flaskr.set_get_description import set_description
 
 from fileinput import filename
 from flask import request
@@ -34,8 +36,12 @@ def make_endpoints(app, login_manager):
         files, page_names = global_test.get_all_page_names()
 
         result = {page_names[i]: files[i] for i in range(len(page_names))}
-
-        return render_template("pages.html", result=result)
+        descriptions = {}
+        for page in result:
+            descriptions[page] = (get_description(page))
+        return render_template("pages.html",
+                               result=result,
+                               descriptions=descriptions)
 
     @app.route('/pages/<filename>')
     def pages_redirect(filename):
@@ -104,6 +110,9 @@ def make_endpoints(app, login_manager):
             result = back.upload(f.filename, f)
 
             if result == "Success":
+                description = request.form.get('description')
+                if description != "":
+                    set_description(description, f.filename)
                 return render_template("upload_success.html")
 
             elif result == "Failure":
