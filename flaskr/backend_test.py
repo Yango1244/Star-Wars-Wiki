@@ -8,7 +8,7 @@ from google.cloud.storage.bucket import Bucket
 
 import pytest
 import glob
-
+from google.cloud import storage
 # TODO(Project 1): Write tests for Backend methods.
 
 
@@ -39,12 +39,12 @@ def sha256(return_value):
 
 
 @pytest.fixture
-def page_bucket(blob):
+def content_bucket(blob):
     return make_bucket(blob)
 
 
 @pytest.fixture
-def login_bucket(blob):
+def user_bucket(blob):
     return make_bucket(blob)
 
 
@@ -54,39 +54,44 @@ def character_bucket(blob):
 
 
 @pytest.fixture
-def backend(page_bucket, login_bucket, character_bucket):
+def client(content_bucket, user_bucket, character_bucket):
     storage_client = MagicMock()
     storage_client.bucket = Mock()
     storage_client.bucket.side_effect = [
-        page_bucket, login_bucket, character_bucket
+        content_bucket, user_bucket, character_bucket
     ]
-    return Backend(storage_client=storage_client)
+    return storage_client
 
 
-def sign_up_add_user(backend, login_bucket):
-    login_bucket.get_blob.return_value = None
+@pytest.fixture
+def backend(client):
+    return Backend(storage_client=client)
+
+
+def test_sign_up_add_user(backend, user_bucket):
+    user_bucket.get_blob.return_value = None
 
     backend.sign_up("Capy", "CapybaraLove")
-    login_bucket.blob.assert_called_once_with('Capy')
+    user_bucket.blob.assert_called_once_with('Capy')
 
 
-def sign_up_user_exists(backend, login_bucket):
+def test_sign_up_user_exists(backend, user_bucket):
     # Blob will exist so we expect to only call get_blob once
-    login_bucket.get_blob.return_value = True
+    user_bucket.get_blob.return_value = True
 
     backend.sign_up("Capy", "CapybaraLove")
-    login_bucket.get_blob.assert_called_once_with('Capy')
-    assert not login_bucket.blob.called
+    user_bucket.get_blob.assert_called_once_with('Capy')
+    assert not user_bucket.blob.called
 
 
-def test_sign_in_user_incorrect(backend, login_bucket):
+def test_sign_in_user_incorrect(backend, user_bucket):
     # Blob won't exist so we expect to return False
-    login_bucket.get_blob.return_value = None
+    user_bucket.get_blob.return_value = None
     assert not backend.sign_in("Capy", "CapyWrong")
 
 
 @mock.patch('flaskr.backend.blake2s')
-def sign_in_user_correct(mock_blake, backend, login_bucket):
+def test_sign_in_user_correct(mock_blake, backend, user_bucket):
     mock_digest = Mock()
     mock_blake.return_value = mock_digest
     mock_bucket = Mock()
@@ -95,8 +100,8 @@ def sign_in_user_correct(mock_blake, backend, login_bucket):
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file)
     mock_open.__exit__ = Mock(return_value=None)
-    login_bucket.return_value = mock_bucket
-    login_bucket.get_blob.return_value = mock_blob
+    user_bucket.return_value = mock_bucket
+    user_bucket.get_blob.return_value = mock_blob
     mock_blob.open.return_value = mock_open
     mock_file.read.return_value = "Correct"
     mock_digest.hexdigest.return_value = "Correct"
@@ -247,3 +252,55 @@ def test_get_image_failure(backend, character_bucket):
     value = backend.get_character_image("test")
 
     assert value.read() == "".encode()
+def integration_test_character_bucket():
+    backend = Backend()
+    blobs = backend.cur_client.list_blobs(backend.character_bucket)
+    characters = [blob.name for blob in blobs]
+    assert "Darth Vader.png" in characters
+
+
+def test_character_bucket(backend, character_bucket):
+    mock_bucket = Mock()
+    character_bucket.return_value = mock_bucket
+    characters = [MagicMock() for _ in range(7)]
+    characters[0].name = "Anakin Skywalker"
+    characters[1].name = "Darth Vader"
+    characters[2].name = "Han Solo"
+    characters[3].name = "Leia Organa"
+    characters[4].name = "Luke Skywalker"
+    characters[5].name = "Obi-Wan Kenobi"
+    characters[6].name = "Palpatine"
+    character_bucket.list_blobs.return_value = characters
+
+    names = [character.name for character in characters]
+    assert "Leia Organa" in names
+
+
+def test_delete_blob(content_bucket, blob, backend):
+    backend.delete_blob("test_name")
+    content_bucket.get_blob.assert_called_once_with("test_name")
+    blob.delete.assert_called_once()
+
+
+def test_get_comments(client, backend):
+    mock_blob1 = Mock()
+    mock_blob2 = Mock()
+    mock_blob3 = Mock()
+    mock_blob1.name = "Han/1.cmt/capy"
+    mock_blob1.download_as_bytes.return_value = "Hello!".encode('utf-8')
+    mock_blob2.name = "Han/2.cmt/jake"
+    mock_blob2.download_as_bytes.return_value = "Hello Capy!".encode('utf-8')
+    mock_blob3.name = "Han/3.cmt/poe"
+    mock_blob3.download_as_bytes.return_value = "I love han!".encode('utf-8')
+    client.list_blobs.return_value = [mock_blob1, mock_blob2, mock_blob3]
+    assert (backend.get_comments("Han")) == {
+        "1": [("Hello!", "capy")],
+        "2": [("Hello Capy!", "jake")],
+        "3": [("I love han!", "poe")]
+    }
+
+
+def test_upload_comment(content_bucket, backend):
+    content_bucket.get_blob.return_value = False
+    backend.upload_comment("han", "capy", "hello", "1")
+    content_bucket.get_blob.assert_called_once_with("han/1.cmt/1.cmt/capy")
