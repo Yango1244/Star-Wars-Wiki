@@ -1,0 +1,17 @@
+{% extends "main.html" %}
+<!DOCTYPE html>
+<html>
+  <head>
+    {% block page_name %}
+    <title>{{ result[username] }}</title>
+    {% endblock %}
+  </head>
+  <body>
+    {% block content %}
+    <img src={{result["banner"]}} width=100% height=150></img>
+    <p><b>{{ result["username"] }}</b></p>
+    <img src={{result["photourl"]}} width=200 height=200></img>
+    <p>{{ result["bio"] }}</p>
+    {% endblock %}
+  </body>
+</html>
