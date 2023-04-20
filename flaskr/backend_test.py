@@ -216,6 +216,44 @@ def test_get_page_none(backend):
     assert backend.get_wiki_page('luke.md') == None
 
 
+def test_character_bucket_get_names(backend, character_bucket):
+    mock_bucket = Mock()
+    character_bucket.return_value = mock_bucket
+    characters = [MagicMock() for _ in range(7)]
+    characters[0].name = "Anakin Skywalker.png"
+    characters[1].name = "Darth Vader.png"
+    characters[2].name = "Han Solo.png"
+    characters[3].name = "Leia Organa.png"
+    characters[4].name = "Luke Skywalker.png"
+    characters[5].name = "Obi-Wan Kenobi.png"
+    characters[6].name = "Palpatine.png"
+    character_bucket.list_blobs.return_value = characters
+    backend.character_bucket.return_value = character_bucket
+    backend.character_bucket.list_blobs.return_value = characters
+    names = backend.get_character_names()
+
+    assert 'Anakin Skywalker' in names
+
+
+# def test_get_image_success(backend, character_bucket, blob, file_stream):
+#     file_stream.read.return_value = "test data".encode()
+
+#     value = backend.get_character_image("test")
+#     backend.character_bucket.get_blob.assert_called_with("test")
+#     backend.blob.open.assert_called_with("rb")
+#     backend.f.read.return_value = bytes
+
+#     assert == "test data".encode()
+
+
+def test_get_image_failure(backend, character_bucket):
+    backend.character_bucket.get_blob.return_value = None
+
+    value = backend.get_character_image("test")
+
+    assert value.read() == "".encode()
+
+
 def integration_test_character_bucket():
     backend = Backend()
     blobs = backend.cur_client.list_blobs(backend.character_bucket)
