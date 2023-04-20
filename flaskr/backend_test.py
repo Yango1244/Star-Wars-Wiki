@@ -7,6 +7,9 @@ from google.cloud import storage
 from google.cloud.storage.bucket import Bucket
 
 import pytest
+import glob
+from google.cloud import storage
+# TODO(Project 1): Write tests for Backend methods.
 
 
 @pytest.fixture
@@ -46,10 +49,17 @@ def user_bucket(blob):
 
 
 @pytest.fixture
-def client(content_bucket, user_bucket):
+def character_bucket(blob):
+    return make_bucket(blob)
+
+
+@pytest.fixture
+def client(content_bucket, user_bucket, character_bucket):
     storage_client = MagicMock()
     storage_client.bucket = Mock()
-    storage_client.bucket.side_effect = [content_bucket, user_bucket]
+    storage_client.bucket.side_effect = [
+        content_bucket, user_bucket, character_bucket
+    ]
     return storage_client
 
 
@@ -204,6 +214,30 @@ def test_get_page_none(backend):
     mock_file_obj.save.return_value = Mock(return_value=None)
 
     assert backend.get_wiki_page('luke.md') == None
+
+
+def integration_test_character_bucket():
+    backend = Backend()
+    blobs = backend.cur_client.list_blobs(backend.character_bucket)
+    characters = [blob.name for blob in blobs]
+    assert "Darth Vader.png" in characters
+
+
+def test_character_bucket(backend, character_bucket):
+    mock_bucket = Mock()
+    character_bucket.return_value = mock_bucket
+    characters = [MagicMock() for _ in range(7)]
+    characters[0].name = "Anakin Skywalker"
+    characters[1].name = "Darth Vader"
+    characters[2].name = "Han Solo"
+    characters[3].name = "Leia Organa"
+    characters[4].name = "Luke Skywalker"
+    characters[5].name = "Obi-Wan Kenobi"
+    characters[6].name = "Palpatine"
+    character_bucket.list_blobs.return_value = characters
+
+    names = [character.name for character in characters]
+    assert "Leia Organa" in names
 
 
 def test_delete_blob(content_bucket, blob, backend):
