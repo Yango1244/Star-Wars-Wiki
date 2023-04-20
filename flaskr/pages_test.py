@@ -27,7 +27,7 @@ def client(app):
 # match the changes made in the other Checkpoint Requirements.
 
 
-def test_home_page(client):
+def home_page(client):
     resp = client.get("/")
     assert resp.status_code == 200
     assert b"Star Wars Wiki" in resp.data

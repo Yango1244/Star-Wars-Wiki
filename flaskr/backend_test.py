@@ -252,6 +252,8 @@ def test_get_image_failure(backend, character_bucket):
     value = backend.get_character_image("test")
 
     assert value.read() == "".encode()
+
+
 def integration_test_character_bucket():
     backend = Backend()
     blobs = backend.cur_client.list_blobs(backend.character_bucket)
