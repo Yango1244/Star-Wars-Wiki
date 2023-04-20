@@ -1,4 +1,4 @@
-from backend import Backend
+from flaskr.backend import Backend
 from flask import Flask
 from werkzeug.datastructures import FileStorage
 import os
@@ -41,10 +41,10 @@ def get_description(wiki_name):
     get txt file from bucket
     return string, error message if no description
     '''
+    print("called")
     d_name,ext = wiki_name.split('.')
     d_name = d_name + "_description.md"
     back = Backend()
     description = back.get_description_from_bucket(d_name)
     return description
-# set_description("Wookies information", "wookie.md")   
-print(get_description("wookie.md"))
+
