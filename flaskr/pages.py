@@ -1,3 +1,4 @@
+from flask import session
 from flask import render_template, send_file
 from flask_login import login_user
 from flask_login import logout_user
@@ -66,6 +67,29 @@ def make_endpoints(app, login_manager):
                                authors=authors,
                                urls=urls,
                                iters=iters)
+
+    @app.route("/profiles")
+    def profiles():
+        users = global_test.get_users()
+        result = {users[i]: users[i] for i in range(len(users))}
+        return render_template("profiles.html", result=result)
+
+    @app.route("/profiles/<username>")
+    def user_profile(username):
+        users = global_test.get_users()
+        if username not in users:
+            return render_template("invalid_user.html")
+
+        photourl = global_test.get_profile_pic(username)
+        bannerurl = global_test.get_banner_pic(username)
+        bio = global_test.get_bio(username)
+        result = {
+            "username": username,
+            "photourl": photourl,
+            "banner": bannerurl,
+            "bio": bio
+        }
+        return render_template("profile.html", result=result)
 
     @app.route("/upload")
     @login_required
@@ -154,6 +178,7 @@ def make_endpoints(app, login_manager):
     def login_validate():
         if request.method == 'POST':
             form_username = request.form.get("username")
+            session['username'] = form_username
             form_password = request.form.get("password")
             valid = global_test.sign_in(form_username, form_password)
 
@@ -182,6 +207,28 @@ def make_endpoints(app, login_manager):
     def edit_profile():
         return render_template('edit_profile.html')
 
+    @app.route("/edit_profile/submit", methods=['POST'])
+    def submit_profile():
+        if request.method == 'POST':
+            username = session["username"]
+            new_pass = request.form.get("new_password")
+            profile_pic = request.files['profile_pic']
+            banner_pic = request.files['banner_pic']
+            bio = request.form.get("bio")
+
+            result = global_test.change_profile(username, new_pass,
+                                                profile_pic.filename,
+                                                profile_pic,
+                                                banner_pic.filename, banner_pic,
+                                                bio)
+
+            if result == "Success":
+                return render_template("edit_success.html")
+
+            elif result == "Failure":
+                return render_template("edit_failure.html")
+
+    # TODO(Project 1): Implement additional routes according to the project requirements.
     @app.route("/character_profile<name>")
     def character_profiles(name):
         name_passed = str()

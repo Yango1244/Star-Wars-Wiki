@@ -54,13 +54,29 @@ def character_bucket(blob):
 
 
 @pytest.fixture
-def client(content_bucket, user_bucket, character_bucket):
+def photo_bucket(blob):
+    return make_bucket(blob)
+
+
+@pytest.fixture
+def bio_bucket(blob):
+    return make_bucket(blob)
+
+
+@pytest.fixture
+def client(content_bucket, user_bucket, character_bucket, photo_bucket,
+           bio_bucket):
     storage_client = MagicMock()
     storage_client.bucket = Mock()
     storage_client.bucket.side_effect = [
-        content_bucket, user_bucket, character_bucket
+        content_bucket, user_bucket, character_bucket, photo_bucket, bio_bucket
     ]
     return storage_client
+
+
+@pytest.fixture
+def backend(client):
+    return Backend(storage_client=client)
 
 
 @pytest.fixture
@@ -214,6 +230,78 @@ def test_get_page_none(backend):
     mock_file_obj.save.return_value = Mock(return_value=None)
 
     assert backend.get_wiki_page('luke.md') == None
+
+
+@mock.patch('flaskr.backend.blake2s')
+def test_change_password(mock_blake, backend):
+    mock_digest = Mock()
+    mock_blake.return_value = mock_digest
+    assert backend.change_profile("Timmy", "newpass", "", "", "", "",
+                                  "") == "Success"
+
+
+def test_change_profile_picture(backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+
+    mock_file_obj.save.return_value = Mock(return_value=None)
+    assert backend.change_profile("Timmy", "", "jedi.jpg", mock_file_obj, "",
+                                  "", "") == "Success"
+
+
+def test_change_profile_picture_wrong_format(backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+
+    mock_file_obj.save.return_value = Mock(return_value=None)
+    assert backend.change_profile("Timmy", "", "jedi.gif", mock_file_obj, "",
+                                  "", "") == "Failure"
+
+
+def test_change_banner_picture(backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+
+    mock_file_obj.save.return_value = Mock(return_value=None)
+    assert backend.change_profile("Timmy", "", "", "", "palunky.png",
+                                  mock_file_obj, "") == "Success"
+
+
+def test_change_banner_picture_wrong_format(backend):
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+
+    mock_file_obj.save.return_value = Mock(return_value=None)
+    assert backend.change_profile("Timmy", "", "", "", "palunky.exe",
+                                  mock_file_obj, "") == "Failure"
+
+
+def test_change_bio(backend):
+    assert backend.change_profile("Timmy", "", "", "", "", "",
+                                  "Bio test") == "Success"
+
+
+@mock.patch('flaskr.backend.blake2s')
+def test_change_entire_profile(mock_blake, backend):
+    mock_digest = Mock()
+    mock_blake.return_value = mock_digest
+    mock_file_obj = Mock()
+    mock_open = Mock()
+    mock_open.__enter__ = Mock(return_value=mock_file_obj)
+    mock_open.__exit__ = Mock(return_value=None)
+    mock_file_obj.save.return_value = Mock(return_value=None)
+
+    assert backend.change_profile("Timmy", "new_pass", "luke.png",
+                                  mock_file_obj, "space.jpg", mock_file_obj,
+                                  "Bio test") == "Success"
 
 
 def test_character_bucket_get_names(backend, character_bucket):
