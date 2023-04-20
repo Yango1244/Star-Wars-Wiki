@@ -290,6 +290,7 @@ class Backend:
             blob.upload_from_string(bio)
 
         return "Success"
+
     def get_character_names(self):
         character_names = [
             Path(blob.name).stem

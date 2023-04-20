@@ -83,6 +83,7 @@ def test_upload_submit_wrong_format(mock_upload, client):
     assert resp.status_code == 200
     assert b"Incorrect file format or file not selected" in resp.data
 
+
 @patch('flaskr.backend.Backend.change_profile')
 def test_edit_profile_success(mock_profile, client):
     mock_profile.return_value = "Success"
@@ -159,6 +160,8 @@ def test_user_profile_valid_user(mock_users, mock_profile_pic, mock_banner_pic,
     resp = client.get("/profiles/yinka23")
     assert resp.status_code == 200
     assert b"yinka23" in resp.data
+
+
 def test_edit_profile(client):
     resp = client.get("/edit_profile")
     assert resp.status_code == 200

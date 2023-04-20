@@ -42,24 +42,30 @@ def sha256(return_value):
 def content_bucket(blob):
     return make_bucket(blob)
 
+
 @pytest.fixture
 def user_bucket(blob):
     return make_bucket(blob)
+
 
 @pytest.fixture
 def character_bucket(blob):
     return make_bucket(blob)
 
+
 @pytest.fixture
 def photo_bucket(blob):
     return make_bucket(blob)
+
 
 @pytest.fixture
 def bio_bucket(blob):
     return make_bucket(blob)
 
+
 @pytest.fixture
-def client(content_bucket, user_bucket, character_bucket, photo_bucket, bio_bucket):
+def client(content_bucket, user_bucket, character_bucket, photo_bucket,
+           bio_bucket):
     storage_client = MagicMock()
     storage_client.bucket = Mock()
     storage_client.bucket.side_effect = [
@@ -291,6 +297,8 @@ def test_change_entire_profile(mock_blake, backend):
     assert backend.change_profile("Timmy", "new_pass", "luke.png",
                                   mock_file_obj, "space.jpg", mock_file_obj,
                                   "Bio test") == "Success"
+
+
 def test_character_bucket_get_names(backend, character_bucket):
     mock_bucket = Mock()
     character_bucket.return_value = mock_bucket
