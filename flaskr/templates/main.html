@@ -12,21 +12,88 @@
 
 <body>
     <!-- TODO(Project 1): Implement routes. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .dropbtn {
+          background-color: rgb(251, 251, 251);
+          color: rgb(236, 68, 6);
+          padding: 0px;
+          font-size: 15px;
+          border: none;
+        }
+        
+        .dropdown {
+          position: relative;
+          display: inline-block;
+        }
+        
+        .dropdown-content {
+          display: none;
+          position: absolute;
+          background-color: #f1f1f1;
+          min-width: 160px;
+          box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+          z-index: 1;
+        }
+        
+        .dropdown-content a {
+          color: black;
+          padding: 12px 16px;
+          text-decoration: none;
+          display: block;
+        }
+        
+        .dropdown-content a:hover {background-color: #ddd;}
+        
+        .dropdown:hover .dropdown-content {display: block;}
+        
+        .dropdown:hover .dropbtn {background-color: #73b8e1;}
+        </style>
     
     <div class="topnav">
         <a class="active" href="/home">Home</a>
+        &nbsp;&nbsp;
         <a href="/pages">Pages</a>
+        &nbsp;&nbsp;
         <a href="/about">About</a>
+        &nbsp;&nbsp;
+        <a href="/profiles">Profiles</a>
+        &nbsp;&nbsp;
+        <div class="dropdown">
+            <button class="dropbtn">Main Cast</button>
+            <div class="dropdown-content">
+              {% for name in character_names %}
+              <a href="/character_profile{{name}}">{{name}}</a>
+              {% endfor %}
+            </div>
+        </div>
         {% if current_user.is_authenticated %}
+            &nbsp;&nbsp;
             <a href="/upload">Upload</a>
+            &nbsp;&nbsp;
             <a href="/logout">Log out</a>
+            &nbsp;&nbsp;
+            <a href="/edit_profile">Edit Profile</a>
+            &nbsp;&nbsp;
             <a> | </a>
+            &nbsp;&nbsp;
             <a>{{current_user.user_id}}</a>
+            &nbsp;&nbsp;
+            <a> | </a>
+            &nbsp;&nbsp;
+            
         {% else %}
+            &nbsp;&nbsp;
             <a href="/login">Login</a>
+            &nbsp;&nbsp;
             <a href="/signup">Sign Up</a>
         {% endif%}
       </div>
+      
+      </head>
+      <body>
+      
+      
       
       
     <div>

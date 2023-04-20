@@ -1,0 +1,25 @@
+
+
+{% extends "main.html" %}
+<!DOCTYPE html>
+<html>
+  <head>
+    {% block page_name %}
+    <title>Character Profile</title>
+    {% endblock %}
+  </head>
+  <body>
+    {% block content %}
+    <h1>Profile:</h1>
+    <h1>{{name_passed}}</h1>
+    {% for value in person_info %}
+    <li><a> {{value.upper()}} : {{person_info[value]}}</a></li>
+    {% endfor %}
+
+    <br>
+    <img src="{{ url_for('images', image=name_passed) }}">
+    <br>
+
+    {% endblock %}
+  </body>
+</html>
