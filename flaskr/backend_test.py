@@ -117,8 +117,7 @@ def upload_single_file(mock_storage, backend):
 @mock.patch('flaskr.backend.os')
 @mock.patch('flaskr.backend.zipfile')
 @mock.patch('flaskr.backend.storage')
-def upload_zip_all_accepted(mock_storage, mock_zip, mock_os,
-                            backend):
+def upload_zip_all_accepted(mock_storage, mock_zip, mock_os, backend):
     mock_file_obj = Mock()
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file_obj)
@@ -134,8 +133,7 @@ def upload_zip_all_accepted(mock_storage, mock_zip, mock_os,
 @mock.patch('flaskr.backend.os')
 @mock.patch('flaskr.backend.zipfile')
 @mock.patch('flaskr.backend.storage')
-def upload_zip_not_all_accepted(mock_storage, mock_zip, mock_os,
-                                backend):
+def upload_zip_not_all_accepted(mock_storage, mock_zip, mock_os, backend):
     mock_file_obj = Mock()
     mock_open = Mock()
     mock_open.__enter__ = Mock(return_value=mock_file_obj)
